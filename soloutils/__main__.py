@@ -65,7 +65,9 @@ chmod +x /tmp/setupwifi.sh
 /tmp/setupwifi.sh
 """.format(ssid=args['--name'], password=args['--password'])
 
+print 'connecting to solo...'
 client = paramiko.SSHClient()
+client.load_system_host_keys()
 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 client.connect('10.1.1.1', username='root', password='TjSDBkAu')
 
