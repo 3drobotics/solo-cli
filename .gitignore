@@ -2,4 +2,4 @@ env
 *.egg-info
 build
 dist
-
+*.pyc
