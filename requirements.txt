@@ -1,0 +1,2 @@
+docopt==0.6.2
+paramiko==1.15.2
