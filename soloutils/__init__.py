@@ -2,6 +2,7 @@ import update
 import tunnel
 import reset
 import info
+import provision
 
 import sys
 import paramiko

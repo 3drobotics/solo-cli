@@ -42,8 +42,8 @@ def pixhawk_versions(solo):
 def main(args):
     print 'connecting to Solo and the Controller...'
 
-    controller = soloutils.connect_controller(await=False)
-    solo = soloutils.connect_solo(await=False)
+    controller = soloutils.connect_controller(await=True)
+    solo = soloutils.connect_solo(await=True)
 
     data = {}
     data['solo'] = solo_versions(solo)
