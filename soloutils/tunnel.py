@@ -1,5 +1,8 @@
 import paramiko, base64, time, sys, soloutils
 
+# This script operates in two stages: creating the script file
+# and then executing it, so we are resilient to network dropouts.
+
 SCRIPT = """
 cat > /tmp/setupwifi.sh << 'SCRIPT'
 
@@ -26,23 +29,25 @@ udhcpc -i wlan0
 
 sleep 3
 wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1 || {{
-    echo 'not connected to the internet.'
-    echo 'check your credentials and try again.'
+    echo 'no internet connection available!'
+    echo 'check your wifi credentials and try again.'
     exit 1
 }}
-echo 'you are now connected to the internet.'
+echo 'connecting to the internet...'
 
-smart check kernel-module-iptable-filter --installed >/dev/null 2>&1
+smart query --installed | grep 'kernel-module-iptable-filter' >/dev/null 2>&1
 if [ $? != 0 ]; then
     python -c "import urllib2, sys; sys.stdout.write(urllib2.urlopen('https://s3.amazonaws.com/solo-packages/controller/kernel-module-iptable-filter-3.10.17-r0.imx6solo_3dr_artoo.rpm').read()); sys.stdout.flush()" > /tmp/iptable_filter.rpm
     rpm -iv --replacepkgs /tmp/iptable_filter.rpm
 fi
+insmod /lib/modules/3.10.17-rt12-*/kernel/net/ipv4/netfilter/iptable_filter.ko
+echo 1 > /proc/sys/net/ipv4/ip_forward
 
 iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
 iptables -A FORWARD -i wlan0 -o wlan0-ap -j ACCEPT
 iptables -A FORWARD -i wlan0-ap -o wlan0 -j ACCEPT
 
-echo 'setup complete.'
+echo 'setup complete! you are now connected to the internet.'
 SCRIPT
 
 chmod +x /tmp/setupwifi.sh
