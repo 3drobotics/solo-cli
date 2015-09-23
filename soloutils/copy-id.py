@@ -16,7 +16,7 @@ def controller_versions(controller):
 
 def solo_versions(solo):
     code, solo_str, stderr = soloutils.command(solo, 'cat /VERSION')
-    version, ref = solo_str.strip().split()
+    version, ref = solo_version.strip().split()
     return {
         "version": version,
         "ref": ref,
@@ -24,7 +24,7 @@ def solo_versions(solo):
 
 def gimbal_versions(solo):
     code, gimbal_str, stderr = soloutils.command(solo, 'cat /AXON_VERSION')
-    version, = gimbal_str.strip().split()
+    version, = gimbal_version.strip().split()
     return {
         "version": version,
     }
@@ -47,8 +47,8 @@ def main(args):
 
     data = {}
     data['solo'] = solo_versions(solo)
-    data['pixhawk'] = pixhawk_versions(solo)
-    data['gimbal'] = gimbal_versions(solo)
+    data['pixhawk'] = solo_versions(solo)
+    data['gimbal'] = solo_versions(solo)
     data['controller'] = controller_versions(controller)
 
     print json.dumps(data, indent=2, sort_keys=True)
