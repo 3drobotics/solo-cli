@@ -1,4 +1,5 @@
 import paramiko, base64, time, sys, soloutils
+from distutils.version import LooseVersion
 
 # This script operates in two stages: creating the script file
 # and then executing it, so we are resilient to network dropouts.
@@ -56,8 +57,15 @@ chmod +x /tmp/setupwifi.sh
 
 def main(args):
     print 'connecting to solo...'
-    client = soloutils.connect_controller()
-    chan = client.get_transport().open_session()
-    code = soloutils.command_stream(chan, SCRIPT.format(ssid=args['--name'], password=args['--password']))
+    controller = soloutils.connect_controller()
+
+    controller_version = soloutils.controller_versions(controller)['version']
+    if LooseVersion('1.1.16') > LooseVersion(controller_version):
+        print 'error: expecting Controller to be at least version 1.1.16'
+        print 'your Controller version: {}'.format(controller_version)
+        print 'please update your Controller to run this command.'
+        sys.exit(1)
+
+    code = soloutils.command_stream(controller, SCRIPT.format(ssid=args['--name'], password=args['--password']))
     client.close()
     sys.exit(code)

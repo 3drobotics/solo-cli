@@ -3,6 +3,7 @@ import wifi
 import reset
 import version
 import provision
+import soloutils
 
 import sys
 import paramiko
