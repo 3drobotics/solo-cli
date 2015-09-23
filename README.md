@@ -12,8 +12,14 @@ Your **PC** will now have a `solo` command line tool allowing you to access the 
 
 ```
 $ solo
+Solo utilities.
+
 Usage:
-  solo tunnel --name=<n> --password=<p>
+  solo version
+  solo wifi --name=<n> --password=<p>
+  solo update (solo|controller) (latest|current|factory|<version>)
+  solo reset (solo|controller)
+  solo provision
 
 Options:
   -h --help        Show this screen.
@@ -21,9 +27,9 @@ Options:
   --password=<p>   WiFi password.
 ```
 
-### tunnel
+### wifi
 
-`solo tunnel` connects your Controller to a local wifi network, allowing you to develop for Solo while also enabling connection to the outside Internet.
+`solo wifi` connects your Controller to a local wifi network, allowing you to develop for Solo while also enabling connection to the outside Internet.
 
 1. Turn on your Controller. Connect your PC to to the Controller's WiFi network.
 2. Run this command from your PC's command line. Specify your local wifi network and password as the `--name` and `--password` arguments.
@@ -32,7 +38,7 @@ Options:
 You will now have access to the Internet on your PC, Solo, and the Controller. You can still connect to Solo and the Controller by their dedicated IP addresses (`10.1.1.1` and `10.1.1.10`), while the Controller is also assigned its own IP on your local WiFi network.
 
 ```
-$ solo tunnel --name="my" --password="wifi network"
+$ solo wifi --name="wifi ssid" --password="wifi password"
 ...
 you are now connected to the internet.
 setup complete.

@@ -1,7 +1,7 @@
 import update
-import tunnel
+import wifi
 import reset
-import info
+import version
 import provision
 
 import sys
@@ -34,15 +34,19 @@ def connect_controller(await=True):
 def connect_solo(await=True):
     return _connect('10.1.1.10', await=await)
 
-def command_stream(client, cmd):
+def command_stream(client, cmd, stdout=sys.stdout, stderr=sys.stderr):
     chan = client.get_transport().open_session()
     chan.exec_command(cmd)
     while True:
         time.sleep(0.1)
         if chan.recv_ready():
-            sys.stdout.write(chan.recv(4096).decode('ascii'))
+            str = chan.recv(4096).decode('ascii')
+            if stdout:
+                stdout.write(str)
         if chan.recv_stderr_ready():
-            sys.stderr.write(chan.recv_stderr(4096).decode('ascii'))
+            str = chan.recv_stderr(4096).decode('ascii')
+            if stderr:
+                stderr.write(str)
         if chan.exit_status_ready():
             break
     code = chan.recv_exit_status()
@@ -65,3 +69,36 @@ def command(client, cmd):
     code = chan.recv_exit_status()
     chan.close()
     return code, stdout, stderr
+
+def controller_versions(controller):
+    code, controller_str, stderr = soloutils.command(controller, 'cat /VERSION')
+    version, ref = controller_str.strip().split()
+    return {
+        "version": version,
+        "ref": ref,
+    }
+
+def solo_versions(solo):
+    code, solo_str, stderr = soloutils.command(solo, 'cat /VERSION')
+    version, ref = solo_str.strip().split()
+    return {
+        "version": version,
+        "ref": ref,
+    }
+
+def gimbal_versions(solo):
+    code, gimbal_str, stderr = soloutils.command(solo, 'cat /AXON_VERSION')
+    version, = gimbal_str.strip().split()
+    return {
+        "version": version,
+    }
+
+def pixhawk_versions(solo):
+    code, pixhawk_str, stderr = soloutils.command(solo, 'cat /PIX_VERSION')
+    version, apm_ref, px4firmware_ref, px4nuttx_ref = pixhawk_str.strip().split()
+    return {
+        "version": version,
+        "apm_ref": apm_ref,
+        "px4firmware_ref": px4firmware_ref,
+        "px4nuttx_ref": px4nuttx_ref,
+    }
