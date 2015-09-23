@@ -6,6 +6,7 @@ Usage:
   solo update (solo|controller) (latest|current|factory|<version>)
   solo reset (solo|controller)
   solo provision
+  solo logs (download)
 
 Options:
   -h --help        Show this screen.
@@ -32,6 +33,8 @@ elif args['provision']:
     soloutils.provision.main(args)
 elif args['wifi']:
     soloutils.wifi.main(args)
+elif args['logs']:
+    soloutils.logs.main(args)
 else:
     print 'no argument found.'
 

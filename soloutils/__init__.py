@@ -4,6 +4,7 @@ import reset
 import version
 import provision
 import soloutils
+import logs
 
 import sys
 import paramiko
@@ -16,12 +17,16 @@ def _connect(ip, await=True):
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     socket.setdefaulttimeout(5)
+    failcount = 0
     while True:
         try:
             client.connect(ip, username='root', password='TjSDBkAu', timeout=5)
         except Exception as e:
             if not await:
                 raise e
+            failcount += 1
+            if failcount == 1:
+                print '(note: ensure you are connected to Solo\'s wifi network.)'
             continue
         time.sleep(0.1)
         break
