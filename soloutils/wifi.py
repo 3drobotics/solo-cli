@@ -7,33 +7,32 @@ from distutils.version import LooseVersion
 SCRIPT = """
 cat > /tmp/setupwifi.sh << 'SCRIPT'
 
-wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1 && {{
-    echo 'already connected to the internet!'
-    exit 0
-}}
-
-cat <<EOF > /etc/wpa_client.conf
+wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1
+if [ $? != 0 ]; then
+    cat <<EOF > /etc/wpa_client.conf
 network={{
   ssid="{ssid}"
   psk="{password}"
 }}
 EOF
 
-sed -i.bak 's/dhcp-option=3.*/dhcp-option=3,10.1.1.1/g' /etc/dnsmasq.conf
-sed -i.bak 's/dhcp-option=6.*/dhcp-option=6,8.8.8.8/g' /etc/dnsmasq.conf
+    sed -i.bak 's/dhcp-option=3.*/dhcp-option=3,10.1.1.1/g' /etc/dnsmasq.conf
+    sed -i.bak 's/dhcp-option=6.*/dhcp-option=6,8.8.8.8/g' /etc/dnsmasq.conf
 
-/etc/init.d/dnsmasq restart
-sleep 2
+    /etc/init.d/dnsmasq restart
+    sleep 2
 
-wpa_supplicant -i wlan0 -c /etc/wpa_client.conf -B
-udhcpc -i wlan0
+    wpa_supplicant -i wlan0 -c /etc/wpa_client.conf -B
+    udhcpc -i wlan0
 
-sleep 3
-wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1 || {{
-    echo 'no internet connection available!'
-    echo 'check your wifi credentials and try again.'
-    exit 1
-}}
+    sleep 3
+    wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1 || {{
+        echo 'no internet connection available!'
+        echo 'check your wifi credentials and try again.'
+        exit 1
+    }}
+fi
+
 echo 'connecting to the internet...'
 
 smart query --installed | grep 'kernel-module-iptable-filter' >/dev/null 2>&1
@@ -67,5 +66,5 @@ def main(args):
         sys.exit(1)
 
     code = soloutils.command_stream(controller, SCRIPT.format(ssid=args['--name'], password=args['--password']))
-    client.close()
+    controller.close()
     sys.exit(code)
