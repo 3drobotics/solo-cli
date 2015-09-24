@@ -3,7 +3,7 @@
 Install this on your **PC** to access some sweet Solo development utilities.
 
 ```
-pip install git+https://github.com/3drobotics/solo-utils
+pip install -UI git+https://github.com/3drobotics/solo-utils
 ```
 
 Your **PC** will now have a `solo` command line tool allowing you to access the following tools.
@@ -20,6 +20,7 @@ Usage:
   solo update (solo|controller) (latest|current|factory|<version>)
   solo reset (solo|controller)
   solo provision
+  solo logs (download)
 
 Options:
   -h --help        Show this screen.
@@ -43,6 +44,10 @@ $ solo wifi --name="wifi ssid" --password="wifi password"
 you are now connected to the internet.
 setup complete.
 ```
+
+### logs
+
+Download logs into your current folder.
 
 ## License
 
