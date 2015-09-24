@@ -27,8 +27,9 @@ def _connect(ip, await=True):
             failcount += 1
             if failcount == 1:
                 print '(note: ensure you are connected to Solo\'s wifi network.)'
+            client.close()
             continue
-        time.sleep(0.1)
+        time.sleep(1)
         break
     socket.setdefaulttimeout(None)
 
