@@ -1,7 +1,7 @@
 import update
 import wifi
-import reset
-import version
+import revert
+import info
 import provision
 import soloutils
 import logs
@@ -109,3 +109,9 @@ def pixhawk_versions(solo):
         "px4firmware_ref": px4firmware_ref,
         "px4nuttx_ref": px4nuttx_ref,
     }
+
+def settings_reset(target):
+    code = soloutils.command_stream(target, 'sololink_config --settings-reset')
+    if code != 0:
+        code = soloutils.command_stream(target, 'mkdir -p /log/updates && touch /log/updates/RESETSETTINGS && shutdown -r now')
+    return code == 0

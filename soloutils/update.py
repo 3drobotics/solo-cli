@@ -110,6 +110,28 @@ def main(args):
     #     done
     # fi
 
+    if args['both']:
+        group = 'Solo and the Controller'
+    if args['solo']:
+        group = 'Solo'
+    if args['controller']:
+        group = 'the Controller'
+
+    # prompt for consent
+    print 'you are about to update {}.'.format(group)
+    print 'this preserves all your local changes to Solo, but compatibility'
+    print 'with newer updates is not guaranteed.'
+    y = raw_input('proceed to perform update? [y/N] ')
+    if not (y.lower() == 'y' or y.lower() == 'yes'):
+        sys.exit(1)
+
+    if not args['latest']:
+        print 'TODO: only solo update to "latest" works yet.'
+        sys.exit(1)
+    if args['both']:
+        print 'TODO: only "solo" or "controller" update yet works, not "both".'
+        sys.exit(1)
+
     print 'waiting for Internet connectivity...'
     await_net()
 
@@ -132,8 +154,8 @@ def main(args):
         client = soloutils.connect_solo(await=True)
 
     # Prepare the update.
+    # older versions don't have sololink_config and ssh returns 127, so do it manually
     code = soloutils.command_stream(client, 'sololink_config --update-prepare sololink')
-    # older versions don't have sololink-config and ssh returns 127
     if code != 0:
         soloutils.command_stream(client, 'rm -rf /log/updates && mkdir -p /log/updates')
 

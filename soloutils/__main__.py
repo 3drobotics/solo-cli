@@ -1,10 +1,10 @@
 """Solo utilities.
 
 Usage:
-  solo version
+  solo info
   solo wifi --name=<n> --password=<p>
-  solo update (solo|controller) (latest|current|factory|<version>)
-  solo reset (solo|controller)
+  solo update (solo|controller|both) (latest|<version>)
+  solo revert (solo|controller|both) (latest|current|factory|<version>)
   solo provision
   solo logs (download)
 
@@ -25,10 +25,10 @@ import soloutils
 
 if args['update']:
     soloutils.update.main(args)
-elif args['reset']:
-	  soloutils.reset.main(args)
-elif args['version']:
-	  soloutils.version.main(args)
+elif args['revert']:
+	  soloutils.revert.main(args)
+elif args['info']:
+	  soloutils.info.main(args)
 elif args['provision']:
     soloutils.provision.main(args)
 elif args['wifi']:
