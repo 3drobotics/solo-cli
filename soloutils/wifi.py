@@ -46,8 +46,6 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
 iptables -A FORWARD -i wlan0 -o wlan0-ap -j ACCEPT
 iptables -A FORWARD -i wlan0-ap -o wlan0 -j ACCEPT
-
-echo 'setup complete! you are now connected to the internet.'
 SCRIPT
 
 chmod +x /tmp/setupwifi.sh
@@ -55,8 +53,8 @@ chmod +x /tmp/setupwifi.sh
 """
 
 def main(args):
-    print 'connecting to solo...'
-    controller = soloutils.connect_controller()
+    print 'connecting to the Controller...'
+    controller = soloutils.connect_controller(await=True)
 
     controller_version = soloutils.controller_versions(controller)['version']
     if LooseVersion('1.1.16') > LooseVersion(controller_version):
@@ -67,4 +65,15 @@ def main(args):
 
     code = soloutils.command_stream(controller, SCRIPT.format(ssid=args['--name'], password=args['--password']))
     controller.close()
+
+    if code == 0:
+        print 'resetting Solo\'s wifi...'
+        solo = soloutils.connect_solo(await=True)
+        soloutils.command_stream(solo, 'init 2 && init 4')
+        solo.close()
+
+        print 'setup complete! you are now connected to the Internet.'
+        print "(if you are not connected to the Internet on your PC,"
+        print " disconnect and reconnect to Solo\'s network.)"
+
     sys.exit(code)

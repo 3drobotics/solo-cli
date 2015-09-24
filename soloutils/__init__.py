@@ -5,11 +5,14 @@ import info
 import provision
 import soloutils
 import logs
+import install_pip
 
 import sys
 import paramiko
 import time
 import socket
+import os
+import tempfile
 
 def _connect(ip, await=True):
     client = paramiko.SSHClient()
@@ -17,15 +20,23 @@ def _connect(ip, await=True):
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     socket.setdefaulttimeout(5)
-    failcount = 0
+    message = False
+    start = time.time()
     while True:
         try:
             client.connect(ip, username='root', password='TjSDBkAu', timeout=5)
+        except paramiko.BadHostKeyException:
+            print 'error: {} has an incorrect entry in ~/.ssh/known_hosts. please run:'.format(ip)
+            print ''
+            print '    ssh-keygen -R {}'.format(ip)
+            print ''
+            print 'and try again'
+            sys.exit(1)
         except Exception as e:
             if not await:
                 raise e
-            failcount += 1
-            if failcount == 1:
+            if not message and time.time() - start > 5:
+                message = True
                 print '(note: ensure you are connected to Solo\'s wifi network.)'
             client.close()
             continue
@@ -115,3 +126,24 @@ def settings_reset(target):
     if code != 0:
         code = soloutils.command_stream(target, 'mkdir -p /log/updates && touch /log/updates/RESETSETTINGS && shutdown -r now')
     return code == 0
+
+def await_net():
+    socket.setdefaulttimeout(5)
+    while True:
+        try:
+            socket.gethostbyname(urlparse.urlparse(SERVERADDR).hostname)
+        except KeyboardInterrupt as e:
+            raise e
+        except:
+            time.sleep(0.1)
+            continue
+
+        try:
+            response = openurl(SERVERADDR)
+        except KeyboardInterrupt as e:
+            raise e
+        except:
+            time.sleep(0.1)
+            continue
+        else:
+            break

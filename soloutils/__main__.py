@@ -7,6 +7,7 @@ Usage:
   solo revert (solo|controller|both) (latest|current|factory|<version>)
   solo provision
   solo logs (download)
+  solo install-pip
 
 Options:
   -h --help        Show this screen.
@@ -35,6 +36,8 @@ elif args['wifi']:
     soloutils.wifi.main(args)
 elif args['logs']:
     soloutils.logs.main(args)
+elif args['install-pip']:
+    soloutils.install_pip.main(args)
 else:
     print 'no argument found.'
 

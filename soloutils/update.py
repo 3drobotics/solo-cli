@@ -76,27 +76,6 @@ def fetch(where, filename):
 
     return '/tmp/' + file_name, '/tmp/' + file_name + '.md5'
 
-def await_net():
-    socket.setdefaulttimeout(5)
-    while True:
-        try:
-            socket.gethostbyname(urlparse.urlparse(SERVERADDR).hostname)
-        except KeyboardInterrupt as e:
-            raise e
-        except:
-            time.sleep(0.1)
-            continue
-
-        try:
-            response = openurl(SERVERADDR)
-        except KeyboardInterrupt as e:
-            raise e
-        except:
-            time.sleep(0.1)
-            continue
-        else:
-            break
-
 def main(args):
     # board1080=0
     # if [ $artooonly == 0 ]; then
@@ -133,7 +112,7 @@ def main(args):
         sys.exit(1)
 
     print 'waiting for Internet connectivity...'
-    await_net()
+    soloutils.await_net()
 
     if args['controller']:
         updatepath = 'artoo/digital/'
