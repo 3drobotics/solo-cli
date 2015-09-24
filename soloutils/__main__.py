@@ -8,6 +8,7 @@ Usage:
   solo provision
   solo logs (download)
   solo install-pip
+  solo install-smart
 
 Options:
   -h --help        Show this screen.
@@ -38,6 +39,8 @@ elif args['logs']:
     soloutils.logs.main(args)
 elif args['install-pip']:
     soloutils.install_pip.main(args)
+elif args['install-smart']:
+    soloutils.install_smart.main(args)
 else:
     print 'no argument found.'
 

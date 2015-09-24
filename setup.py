@@ -12,7 +12,8 @@ setup(name='soloutils',
       author='3D Robotics',
       install_requires=[
           'docopt >= 0.6.2',
-          'paramiko >= 1.15.2'
+          'paramiko >= 1.15.2',
+          'scp >= 0.10.0',
       ],
       author_email='tim@3drobotics.com',
       classifiers=['Development Status :: 4 - Beta', 'Environment :: Console',
