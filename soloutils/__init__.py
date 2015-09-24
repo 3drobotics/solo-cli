@@ -13,6 +13,10 @@ import time
 import socket
 import os
 import tempfile
+import urlparse
+import urllib2
+
+SERVERADDR = '***REMOVED***'
 
 def _connect(ip, await=True):
     client = paramiko.SSHClient()
@@ -131,18 +135,19 @@ def await_net():
     socket.setdefaulttimeout(5)
     while True:
         try:
-            socket.gethostbyname(urlparse.urlparse(SERVERADDR).hostname)
+            socket.gethostbyname('example.com')
         except KeyboardInterrupt as e:
             raise e
-        except:
+        except Exception as e:
             time.sleep(0.1)
             continue
 
         try:
-            response = openurl(SERVERADDR)
+            request = urllib2.Request('http://example.com/')
+            urllib2.urlopen(request)
         except KeyboardInterrupt as e:
             raise e
-        except:
+        except Exception as e:
             time.sleep(0.1)
             continue
         else:

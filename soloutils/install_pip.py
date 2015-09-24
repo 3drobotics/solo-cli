@@ -5,7 +5,18 @@ from distutils.version import LooseVersion
 # and then executing it, so we are resilient to network dropouts.
 
 SCRIPT = """
-echo hi
+pip --version 2>/dev/null
+if [ $? == 0 ]; then
+    echo 'pip is installed on Solo.'
+    exit 0
+fi
+
+python -c "import urllib2; print urllib2.urlopen('https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py').read()" | python
+pip install pip --upgrade
+
+echo ''
+pip --version
+echo 'pip is installed on Solo.'
 """
 
 def main(args):
@@ -21,6 +32,7 @@ def main(args):
     print 'waiting for Internet connectivity...'
     soloutils.await_net()
 
+    print ''
     code = soloutils.command_stream(solo, SCRIPT)
     solo.close()
     sys.exit(code)
