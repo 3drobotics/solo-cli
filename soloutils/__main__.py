@@ -17,7 +17,7 @@ Options:
 
 """
 
-import threading, requests, time
+import threading, time
 
 from docopt import docopt
 args = docopt(__doc__, version='solo-utils 1.0')

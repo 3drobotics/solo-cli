@@ -7,7 +7,7 @@ that require updating.
 """
 
 from datetime import datetime, timedelta
-import sys, urllib2, re, urlparse, soloutils, time, base64, requests
+import sys, urllib2, re, urlparse, soloutils, time, base64
 import socket
 import posixpath
 import hashlib
