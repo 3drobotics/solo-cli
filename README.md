@@ -50,10 +50,6 @@ you are now connected to the internet.
 setup complete.
 ```
 
-### logs
-
-Download logs from Solo into your current folder.
-
 ### update and revert
 
 `solo update` will update Solo to a given version. This process does not clear user modifications to the filesystem, so ensure that the update process will not be impacted by these.
@@ -75,6 +71,14 @@ These install `pip`, the Python package manager, `runit`, a startup service mana
 ### info
 
 `solo info` dumps to the command line the versions of all components of Solo and the Controller.
+
+### provision
+
+`solo provision` copies your SSH key to Solo so you can SSH in without being prompted for a password.
+
+### logs
+
+Download logs from Solo into your current folder.
 
 ### video
 
