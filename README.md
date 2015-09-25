@@ -1,9 +1,9 @@
-# solo dev utilities
+# solo command line utilities
 
 Install this on your **PC** to access some sweet Solo development utilities.
 
 ```
-pip install -UI git+https://github.com/3drobotics/solo-utils
+pip install -UI git+https://github.com/3drobotics/solo-cli
 ```
 
 Your **PC** will now have a `solo` command line tool allowing you to access the following tools.
@@ -12,7 +12,7 @@ Your **PC** will now have a `solo` command line tool allowing you to access the 
 
 ```
 $ solo
-Solo utilities.
+Solo command line utilities.
 
 Usage:
   solo info

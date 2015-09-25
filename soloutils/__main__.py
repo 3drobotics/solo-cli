@@ -1,5 +1,5 @@
 """
-Solo utilities.
+Solo command line utilities.
 
 Usage:
   solo info
