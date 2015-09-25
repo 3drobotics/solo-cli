@@ -7,6 +7,7 @@ import soloutils
 import logs
 import install_pip
 import install_smart
+import install_runit
 import resize
 
 import sys

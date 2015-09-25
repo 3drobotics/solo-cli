@@ -9,6 +9,7 @@ Usage:
   solo logs (download)
   solo install-pip
   solo install-smart
+  solo install-runit
   solo resize
 
 Options:
@@ -42,6 +43,8 @@ elif args['install-pip']:
     soloutils.install_pip.main(args)
 elif args['install-smart']:
     soloutils.install_smart.main(args)
+elif args['install-runit']:
+    soloutils.install_runit.main(args)
 elif args['resize']:
     soloutils.resize.main(args)
 else:

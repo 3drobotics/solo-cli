@@ -1,9 +1,6 @@
 import paramiko, base64, time, sys, soloutils
 from distutils.version import LooseVersion
 
-# This script operates in two stages: creating the script file
-# and then executing it, so we are resilient to network dropouts.
-
 SCRIPT = """
 # Patch smart to allow --remove-all
 # See http://lists.openembedded.org/pipermail/openembedded-core/2014-July/095090.html
