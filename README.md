@@ -15,12 +15,17 @@ $ solo
 Solo utilities.
 
 Usage:
-  solo version
+  solo info
   solo wifi --name=<n> --password=<p>
-  solo update (solo|controller) (latest|current|factory|<version>)
-  solo reset (solo|controller)
+  solo update (solo|controller|both) (latest|<version>)
+  solo revert (solo|controller|both) (latest|current|factory|<version>)
   solo provision
+  solo resize
   solo logs (download)
+  solo install-pip
+  solo install-smart
+  solo install-runit
+  solo video (acquire|restore)
 
 Options:
   -h --help        Show this screen.
@@ -47,7 +52,12 @@ setup complete.
 
 ### logs
 
-Download logs into your current folder.
+Download logs from Solo into your current folder.
+
+### video
+
+* `acquire` frees `/dev/video0` for scripts to use it as a video source.
+* `restore` restores the video downlink to apps, reclaiming `/dev/video0`.
 
 ## License
 

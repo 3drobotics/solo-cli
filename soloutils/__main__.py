@@ -1,4 +1,5 @@
-"""Solo utilities.
+"""
+Solo utilities.
 
 Usage:
   solo info
@@ -6,18 +7,17 @@ Usage:
   solo update (solo|controller|both) (latest|<version>)
   solo revert (solo|controller|both) (latest|current|factory|<version>)
   solo provision
+  solo resize
   solo logs (download)
   solo install-pip
   solo install-smart
   solo install-runit
   solo video (acquire|restore)
-  solo resize
 
 Options:
   -h --help        Show this screen.
   --name=<n>       WiFi network name.
   --password=<p>   WiFi password.
-
 """
 
 import threading, time
