@@ -17,8 +17,6 @@ import tempfile
 import urlparse
 import urllib2
 
-SERVERADDR = '***REMOVED***'
-
 def _connect(ip, await=True):
     client = paramiko.SSHClient()
     client.load_system_host_keys()
