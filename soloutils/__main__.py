@@ -10,6 +10,7 @@ Usage:
   solo install-pip
   solo install-smart
   solo install-runit
+  solo video (acquire|restore)
   solo resize
 
 Options:
@@ -47,6 +48,8 @@ elif args['install-runit']:
     soloutils.install_runit.main(args)
 elif args['resize']:
     soloutils.resize.main(args)
+elif args['video']:
+    soloutils.video.main(args)
 else:
     print 'no argument found.'
 
