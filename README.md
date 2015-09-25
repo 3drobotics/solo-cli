@@ -60,6 +60,22 @@ Download logs from Solo into your current folder.
 
 `solo revert` destructively reverts Solo to a given version, including to factory ("gold") settings. This removes all user modifications from the filesystem, and is recommended if you do not care about losing these changes.
 
+### resize
+
+`solo resize` resizes Solo's user partition to about ~500mb, shrinking the `/log` partition.
+
+**TODO:** A bug exists that requires you to run this twice, i.e. once more after Solo resets the first time.
+
+### install-pip, install-runit, install-smart
+
+These install `pip`, the Python package manager, `runit`, a startup service manager, and `smart`, the package manager for Solo and its repository locations.
+
+**NOTE:** In the future these might be merged into a "dev upgrade" command.
+
+### info
+
+`solo info` dumps to the command line the versions of all components of Solo and the Controller.
+
 ### video
 
 * `acquire` frees `/dev/video0` for scripts to use it as a video source.
