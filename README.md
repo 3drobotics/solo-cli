@@ -54,6 +54,12 @@ setup complete.
 
 Download logs from Solo into your current folder.
 
+### update and revert
+
+`solo update` will update Solo to a given version. This process does not clear user modifications to the filesystem, so ensure that the update process will not be impacted by these.
+
+`solo revert` destructively reverts Solo to a given version, including to factory ("gold") settings. This removes all user modifications from the filesystem, and is recommended if you do not care about losing these changes.
+
 ### video
 
 * `acquire` frees `/dev/video0` for scripts to use it as a video source.
