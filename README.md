@@ -50,12 +50,6 @@ you are now connected to the internet.
 setup complete.
 ```
 
-### update and revert
-
-`solo update` will update Solo to a given version. This process does not clear user modifications to the filesystem, so ensure that the update process will not be impacted by these.
-
-`solo revert` destructively reverts Solo to a given version, including to factory ("gold") settings. This removes all user modifications from the filesystem, and is recommended if you do not care about losing these changes.
-
 ### resize
 
 `solo resize` resizes Solo's user partition to about ~500mb, shrinking the `/log` partition.
