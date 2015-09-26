@@ -14,10 +14,6 @@ import hashlib
 from scp import SCPClient
 from distutils.version import LooseVersion
 
-SERVERADDR = '***REMOVED***'
-USERNAME = 'sololink'
-PASSWORD = '***REMOVED***'
-
 def openurl(url):
     request = urllib2.Request(url)
     base64string = base64.encodestring('%s:%s' % (USERNAME, PASSWORD)).replace('\n', '')
