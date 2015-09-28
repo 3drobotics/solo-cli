@@ -11,34 +11,46 @@ import sys, urllib2, re, urlparse, soloutils, time, base64
 import socket
 import posixpath
 import hashlib
+import json
+import os
 from scp import SCPClient
 from distutils.version import LooseVersion
 
+SERVERADDR = 'http://firmwarehouse.3dr.com/'
+TOKEN = '51fbe08cf5ef0800a07af051031a21d7f9f5438e'
+
+class FirmwareRelease(object):
+    def __init__(self, json):
+        self.version = json['major'] + '.' + json['minor'] + '.' + json['patch']
+        self.url = json['file']
+        self.md5 = json['md5']
+        self.channel = json['channel']
+        self.product = json['product']
+
 def openurl(url):
     request = urllib2.Request(url)
-    base64string = base64.encodestring('%s:%s' % (USERNAME, PASSWORD)).replace('\n', '')
-    request.add_header("Authorization", "Basic %s" % base64string)
+    request.add_header('Authorization', 'Token ' + TOKEN)
     return urllib2.urlopen(request)
 
-def releases(where):
-    root = urlparse.urljoin(urlparse.urljoin(SERVERADDR, where), 'update/')
-    listing = openurl(root).read()
-    releases = list(set(re.findall(r'[^">]+.tar.gz', listing)))
-    releases.sort(key=LooseVersion)
-    return releases
+def releases(product):
+    results = []
+    url = urlparse.urljoin(SERVERADDR, 'releases/')
+    while True:
+        parsed = json.loads(openurl(url).read())
+        results += parsed['results']
+        if parsed['next']:
+            url = parsed['next']
+        else:
+            break
+    return sorted(filter(lambda x: x.product in product and ('SOLO_UNFILTERED_UPDATES' in os.environ or x.channel == 1), map(FirmwareRelease, results)), key=lambda x: LooseVersion(x.version))
 
-def fetch(where, filename):
-    root = urlparse.urljoin(urlparse.urljoin(SERVERADDR, where), 'update/')
-    url = urlparse.urljoin(root, filename)
+def fetch(release):
+    import requests
 
-    # Download MD5 file
-    md5 = openurl(url + '.md5').read()
-
-    file_name = url.split('/')[-1]
-    u = openurl(url)
+    file_name = release.url.split('/')[-1]
+    u = requests.get(release.url, stream=True)
     f = open('/tmp/' + file_name, 'wb')
-    meta = u.info()
-    file_size = int(meta.getheaders("Content-Length")[0])
+    file_size = int(u.headers['Content-Length'])
     print "downloading: %s Bytes: %s" % (file_name, file_size)
 
     sig = hashlib.md5()
@@ -46,7 +58,7 @@ def fetch(where, filename):
     file_size_dl = 0
     block_sz = 8192
     while True:
-        buffer = u.read(block_sz)
+        buffer = u.raw.read(block_sz)
         if not buffer:
             break
 
@@ -61,10 +73,10 @@ def fetch(where, filename):
     print ''
 
     f2 = open('/tmp/' + file_name + '.md5', 'wb')
-    f2.write(md5)
+    f2.write(release.md5)
     f2.close()
 
-    if md5.split()[0] != sig.hexdigest():
+    if release.md5 != sig.hexdigest():
         print 'expected md5 of {}, received file with md5 of {}'.format(md5, sig.hexdigest())
         print 'please check the file {}'.format(url)
         print 'and try again.'
@@ -73,18 +85,6 @@ def fetch(where, filename):
     return '/tmp/' + file_name, '/tmp/' + file_name + '.md5'
 
 def main(args):
-    # board1080=0
-    # if [ $artooonly == 0 ]; then
-    #     while true; do
-    #         read -p "Are you using a production Sololink board (y/n)?" yn
-    #         case $yn in
-    #             [Yy]* ) board1080=1; break;;
-    #             [Nn]* ) break;;
-    #             * ) echo "Please answer yes or no.";;
-    #         esac
-    #     done
-    # fi
-
     if args['both']:
         group = 'Solo and the Controller'
     if args['solo']:
@@ -111,12 +111,12 @@ def main(args):
     soloutils.await_net()
 
     if args['controller']:
-        updatepath = 'artoo/digital/'
+        product = [1, 10]
     else:
-        updatepath = 'solo/1080p/'
+        product = [2, 9]
 
-    updates = releases(updatepath)
-    file_loc, md5_loc = fetch(updatepath, updates[-1])
+    updates = releases(product)
+    file_loc, md5_loc = fetch(updates[-1])
 
     print 'please power-up the Controller and connect your PC to the Solo wifi network.'
 
