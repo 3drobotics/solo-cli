@@ -57,8 +57,8 @@ def main(args):
     controller = soloutils.connect_controller(await=True)
 
     controller_version = soloutils.controller_versions(controller)['version']
-    if LooseVersion('1.1.16') > LooseVersion(controller_version):
-        print 'error: expecting Controller to be at least version 1.1.16'
+    if LooseVersion('1.1.15') > LooseVersion(controller_version):
+        print 'error: expecting Controller to be at least version 1.1.15'
         print 'your Controller version: {}'.format(controller_version)
         print 'please update your Controller to run this command.'
         sys.exit(1)
