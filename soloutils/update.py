@@ -167,8 +167,8 @@ def main(args):
     else:
         print('update succeeded!')
 
-    dt = datetime.today() + timedelta(minutes=4)
-    print('please wait up to three minutes longer for the installation to complete (at {}).'.format(dt.strftime('%-I:%M')))
+    dt = datetime.today() + timedelta(minutes=3, seconds=20)
+    print('please wait up to three minutes longer for the installation to complete (by {}).'.format(dt.strftime('%-I:%M %p')))
 
     # Complete!
     client.close()
