@@ -92,6 +92,7 @@ def main(args):
     if args['controller']:
         group = 'the Controller'
 
+    version = None
     if args['<version>']:
         version = re.sub(r'^v', '', args['<version>'])
         if not re.match(r'^\d+', version):
