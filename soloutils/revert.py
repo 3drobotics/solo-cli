@@ -33,10 +33,10 @@ def main(args):
         controller = soloutils.connect_controller(await=True)
 
     if args['solo'] or args['both']:
-        soloutils.settings_reset(solo, 'solo')
+        soloutils.settings_reset(solo)
         print('Solo will continue reverting once it reboots.')
     if args['controller'] or args['both']:
-        newstyle = soloutils.settings_reset(controller, 'controller')
+        newstyle = soloutils.settings_reset(controller)
         print('Controller will continue reverting once it reboots.')
 
     dt = datetime.today() + timedelta(minutes=4)

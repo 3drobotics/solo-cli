@@ -92,6 +92,12 @@ def main(args):
     if args['controller']:
         group = 'the Controller'
 
+    if args['<version>']:
+        version = re.sub(r'^v', '', args['<version>'])
+        if not re.match(r'^\d+', version):
+            print 'error: verion number specified looks invalid.'
+            sys.exit(1)
+
     # prompt for consent
     print 'you are about to update {}.'.format(group)
     print 'this preserves all your local changes to Solo, but compatibility'
@@ -100,8 +106,8 @@ def main(args):
     if not (y.lower() == 'y' or y.lower() == 'yes'):
         sys.exit(1)
 
-    if not args['latest']:
-        print 'TODO: only solo update to "latest" works yet.'
+    if not args['latest'] and not version:
+        print 'TODO: only solo update to "latest" or "<version>" works yet.'
         sys.exit(1)
     if args['both']:
         print 'TODO: only "solo" or "controller" update yet works, not "both".'
@@ -116,6 +122,12 @@ def main(args):
         product = [2, 9]
 
     updates = releases(product)
+
+    if version:
+        updates = filter(lambda x: version in re.sub('.tar.gz', '', x.url.split('/')[-1]), updates)
+        if len(updates) == 0:
+            print 'error: no version matching {} were found.'.format(version)
+            sys.exit(1)
     file_loc, md5_loc = fetch(updates[-1])
 
     print 'please power-up the Controller and connect your PC to the Solo wifi network.'
