@@ -1,12 +1,12 @@
-# solo command line utilities
+# Solo CLI
 
-Install this on your **PC** to access some sweet Solo development utilities.
+*Solo CLI* is a command-line tool that you install on your **computer** to control, update, or connect with Solo for development.
 
 ```
-pip install -UI git+https://github.com/3drobotics/solo-cli
+sudo pip install -UI git+https://github.com/3drobotics/solo-cli
 ```
 
-Your **PC** will now have a `solo` command line tool allowing you to access the following tools.
+Your Computer will now have a `solo` command line tool. Read on for what commands are available.
 
 
 ## cli
