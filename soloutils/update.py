@@ -73,7 +73,7 @@ def fetch(release):
     print ''
 
     f2 = open('/tmp/' + file_name + '.md5', 'wb')
-    f2.write(release.md5)
+    f2.write(release.md5 + '  ' + file_name + '\n')
     f2.close()
 
     if release.md5 != sig.hexdigest():
