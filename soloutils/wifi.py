@@ -16,6 +16,8 @@ network={{
 }}
 EOF
 
+    echo 1 > /proc/sys/net/ipv4/ip_forward
+
     sed -i.bak 's/dhcp-option=3.*/dhcp-option=3,10.1.1.1/g' /etc/dnsmasq.conf
     sed -i.bak 's/dhcp-option=6.*/dhcp-option=6,8.8.8.8/g' /etc/dnsmasq.conf
 
@@ -41,7 +43,6 @@ if [ $? != 0 ]; then
     rpm -iv --replacepkgs /tmp/iptable_filter.rpm
 fi
 insmod /lib/modules/3.10.17-rt12-*/kernel/net/ipv4/netfilter/iptable_filter.ko
-echo 1 > /proc/sys/net/ipv4/ip_forward
 
 iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
 iptables -A FORWARD -i wlan0 -o wlan0-ap -j ACCEPT
@@ -68,6 +69,7 @@ def main(args):
 
     if code == 0:
         print 'resetting Solo\'s wifi...'
+        print '(if solo is not online, you can hit Ctrl+C safely now.)'
         solo = soloutils.connect_solo(await=True)
         soloutils.command_stream(solo, 'init 2 && init 4')
         solo.close()
