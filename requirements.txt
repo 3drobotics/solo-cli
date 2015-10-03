@@ -1,3 +1,4 @@
 docopt>=0.6.0
 paramiko>=1.15.0
 scp>=0.10.0
+requests>=2.5.0

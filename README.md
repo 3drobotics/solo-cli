@@ -1,12 +1,13 @@
-# solo command line utilities
+# Solo CLI
 
-Install this on your **PC** to access some sweet Solo development utilities.
+*Solo CLI* is a command-line tool that you install on your **computer** to control, update, or connect with Solo for development.
 
 ```
-pip install -UI git+https://github.com/3drobotics/solo-cli
+sudo pip install -UI git+https://github.com/3drobotics/solo-cli
 ```
 
-Your **PC** will now have a `solo` command line tool allowing you to access the following tools.
+Your Computer will now have a `solo` command line tool. Read on for what commands are available.
+
 
 ## cli
 
@@ -33,6 +34,7 @@ Options:
   --password=<p>   WiFi password.
 ```
 
+
 ### wifi
 
 `solo wifi` connects your Controller to a local wifi network, allowing you to develop for Solo while also enabling connection to the outside Internet.
@@ -50,11 +52,20 @@ you are now connected to the internet.
 setup complete.
 ```
 
+
+### update and revert
+
+`solo update` will update Solo to a given version. This process does not clear user modifications to the filesystem, so ensure that the update process will not be impacted by these.
+
+`solo revert` destructively reverts Solo to a given version, including to factory ("gold") settings. This removes all user modifications from the filesystem, and is recommended if you do not care about losing these changes.
+
+
 ### resize
 
 `solo resize` resizes Solo's user partition to about ~500mb, shrinking the `/log` partition.
 
 **TODO:** A bug exists that requires you to run this twice, i.e. once more after Solo resets the first time.
+
 
 ### install-pip, install-runit, install-smart
 
@@ -62,22 +73,27 @@ These install `pip`, the Python package manager, `runit`, a startup service mana
 
 **NOTE:** In the future these might be merged into a "dev upgrade" command.
 
+
 ### info
 
 `solo info` dumps to the command line the versions of all components of Solo and the Controller.
+
 
 ### provision
 
 `solo provision` copies your SSH key to Solo so you can SSH in without being prompted for a password.
 
+
 ### logs
 
 Download logs from Solo into your current folder.
+
 
 ### video
 
 * `acquire` frees `/dev/video0` for scripts to use it as a video source.
 * `restore` restores the video downlink to apps, reclaiming `/dev/video0`.
+
 
 ## License
 

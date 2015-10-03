@@ -33,11 +33,16 @@ def main(args):
         controller = soloutils.connect_controller(await=True)
 
     if args['solo'] or args['both']:
-        soloutils.settings_reset(solo, 'solo')
+        soloutils.settings_reset(solo)
         print('Solo will continue reverting once it reboots.')
     if args['controller'] or args['both']:
-        newstyle = soloutils.settings_reset(controller, 'controller')
+        newstyle = soloutils.settings_reset(controller)
         print('Controller will continue reverting once it reboots.')
 
-    dt = datetime.today() + timedelta(minutes=4)
-    print('please wait up to three minutes longer for the reset to complete (at {}).'.format(dt.strftime('%-I:%M')))
+    dt = datetime.today() + timedelta(minutes=3, seconds=20)
+    print('please wait up to three minutes longer for the process to complete (by {}).'.format(dt.strftime('%-I:%M %p')))
+
+    if args['solo'] or args['both']:
+        solo.close()
+    if args['controller'] or args['both']:
+        controller.close()
