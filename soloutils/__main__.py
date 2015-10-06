@@ -4,8 +4,8 @@ Solo command line utilities.
 Usage:
   solo info
   solo wifi --name=<n> --password=<p>
-  solo update (solo|controller|both) (latest|<version>)
-  solo revert (solo|controller|both) (latest|current|factory|<version>)
+  solo update (solo|controller|both) (latest|<version>|--list)
+  solo revert (solo|controller|both) (latest|current|factory|<version>|--list)
   solo provision
   solo resize
   solo logs (download)
@@ -18,6 +18,7 @@ Options:
   -h --help        Show this screen.
   --name=<n>       WiFi network name.
   --password=<p>   WiFi password.
+  --list           Lists available updates.
 """
 
 import threading, time

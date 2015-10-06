@@ -39,8 +39,8 @@ def main(args):
         newstyle = soloutils.settings_reset(controller)
         print('Controller will continue reverting once it reboots.')
 
-    dt = datetime.today() + timedelta(minutes=3, seconds=20)
-    print('please wait up to three minutes longer for the process to complete (by {}).'.format(dt.strftime('%-I:%M %p')))
+    dt = datetime.today() + timedelta(minutes=4)
+    print('please wait up to four minutes longer for the process to complete (at {}).'.format(dt.strftime('%-I:%M')))
 
     if args['solo'] or args['both']:
         solo.close()

@@ -58,21 +58,27 @@ def main(args):
     controller = soloutils.connect_controller(await=True)
 
     controller_version = soloutils.controller_versions(controller)['version']
-    if LooseVersion('1.1.15') > LooseVersion(controller_version):
-        print 'error: expecting Controller to be at least version 1.1.15'
+    if LooseVersion('1.1.15') != LooseVersion(controller_version):
+        print 'error: expecting Controller to be EXACTLY EQUAL TO 1.1.15'
         print 'your Controller version: {}'.format(controller_version)
-        print 'please update your Controller to run this command.'
+        print 'please flash your Controller with 1.1.15 to run this command.'
+        print ''
+        print '    solo update solo 1.1.15'
+        print '    solo update controller 1.1.15'
         sys.exit(1)
 
     code = soloutils.command_stream(controller, SCRIPT.format(ssid=args['--name'], password=args['--password']))
     controller.close()
 
     if code == 0:
-        print 'resetting Solo\'s wifi...'
-        print '(if solo is not online, you can hit Ctrl+C safely now.)'
-        solo = soloutils.connect_solo(await=True)
-        soloutils.command_stream(solo, 'init 2 && init 4')
-        solo.close()
+        try:
+            print 'resetting Solo\'s wifi...'
+            print '(if solo is not online, you can hit Ctrl+C safely now.)'
+            solo = soloutils.connect_solo(await=True)
+            soloutils.command_stream(solo, 'init 2 && init 4')
+            solo.close()
+        except KeyboardInterrupt:
+            pass
 
         print 'setup complete! you are now connected to the Internet.'
         print "(if you are not connected to the Internet on your PC,"
