@@ -110,7 +110,7 @@ def main(args):
 
     print ''
     dt = datetime.today() + timedelta(minutes=4)
-    print('please wait up to three minutes longer for the resize to complete (at {}).'.format(dt.strftime('%-I:%M')))
+    print('please wait up to four minutes longer for the resize to complete (at {}).'.format(dt.strftime('%-I:%M')))
     print('(you can manually restart solo if it fails to come online again.)')
 
     solo.close()

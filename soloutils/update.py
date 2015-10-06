@@ -180,8 +180,8 @@ def main(args):
     else:
         errprinter('update succeeded!')
 
-    dt = datetime.today() + timedelta(minutes=3, seconds=20)
-    errprinter('please wait up to three minutes longer for the installation to complete (by {}).'.format(dt.strftime('%-I:%M %p')))
+    dt = datetime.today() + timedelta(minutes=4)
+    errprinter('please wait up to four minutes longer for the installation to complete (at {}).'.format(dt.strftime('%-I:%M')))
 
     # Complete!
     client.close()
