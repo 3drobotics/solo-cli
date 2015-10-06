@@ -6,6 +6,7 @@ on the internet connection and the number of components on the Solo/Artoo
 that require updating.
 """
 
+from __future__ import print_function
 from datetime import datetime, timedelta
 import sys, urllib2, re, urlparse, soloutils, time, base64
 import socket
@@ -18,6 +19,9 @@ from distutils.version import LooseVersion
 
 SERVERADDR = 'http://firmwarehouse.3dr.com/'
 TOKEN = '51fbe08cf5ef0800a07af051031a21d7f9f5438e'
+
+def errprinter(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 class FirmwareRelease(object):
     def __init__(self, json):
@@ -51,7 +55,7 @@ def fetch(release):
     u = requests.get(release.url, stream=True)
     f = open('/tmp/' + file_name, 'wb')
     file_size = int(u.headers['Content-Length'])
-    print "downloading: %s Bytes: %s" % (file_name, file_size)
+    errprinter("downloading: %s Bytes: %s" % (file_name, file_size))
 
     sig = hashlib.md5()
 
@@ -67,19 +71,19 @@ def fetch(release):
         f.write(buffer)
         status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
         status = status + chr(8)*(len(status)+1)
-        print status,
+        errprinter(status, end='')
 
     f.close()
-    print ''
+    errprinter('')
 
     f2 = open('/tmp/' + file_name + '.md5', 'wb')
     f2.write(release.md5 + '  ' + file_name + '\n')
     f2.close()
 
     if release.md5 != sig.hexdigest():
-        print 'expected md5 of {}, received file with md5 of {}'.format(md5, sig.hexdigest())
-        print 'please check the file {}'.format(url)
-        print 'and try again.'
+        errprinter('expected md5 of {}, received file with md5 of {}'.format(md5, sig.hexdigest()))
+        errprinter('please check the file {}'.format(url))
+        errprinter('and try again.')
         sys.exit(1)
 
     return '/tmp/' + file_name, '/tmp/' + file_name + '.md5'
@@ -96,25 +100,26 @@ def main(args):
     if args['<version>']:
         version = re.sub(r'^v', '', args['<version>'])
         if not re.match(r'^\d+', version):
-            print 'error: verion number specified looks invalid.'
+            errprinter('error: verion number specified looks invalid.')
             sys.exit(1)
 
-    # prompt for consent
-    print 'you are about to update {}.'.format(group)
-    print 'this preserves all your local changes to Solo, but compatibility'
-    print 'with newer updates is not guaranteed.'
-    y = raw_input('proceed to perform update? [y/N] ')
-    if not (y.lower() == 'y' or y.lower() == 'yes'):
-        sys.exit(1)
+    if not args['--list']:
+        # prompt for consent
+        errprinter('you are about to update {}.'.format(group))
+        errprinter('this preserves all your local changes to Solo, but compatibility')
+        errprinter('with newer updates is not guaranteed.')
+        y = raw_input('proceed to perform update? [y/N] ')
+        if not (y.lower() == 'y' or y.lower() == 'yes'):
+            sys.exit(1)
 
-    if not args['latest'] and not version:
-        print 'TODO: only solo update to "latest" or "<version>" works yet.'
+    if not args['latest'] and not version and not args['--list']:
+        errprinter('TODO: only solo update to "latest" or "<version>" works yet.')
         sys.exit(1)
     if args['both']:
-        print 'TODO: only "solo" or "controller" update yet works, not "both".'
+        errprinter('TODO: only "solo" or "controller" update yet works, not "both".')
         sys.exit(1)
 
-    print 'waiting for Internet connectivity...'
+    errprinter('checking Internet connectivity...')
     soloutils.await_net()
 
     if args['controller']:
@@ -127,18 +132,25 @@ def main(args):
     if version:
         updates = filter(lambda x: version in re.sub('.tar.gz', '', x.url.split('/')[-1]), updates)
         if len(updates) == 0:
-            print 'error: no version matching {} were found.'.format(version)
+            errprinter('error: no version matching {} were found.'.format(version))
             sys.exit(1)
+
+    if args['--list']:
+        for update in updates:
+            print(update.version)
+        sys.exit(0)
+
+    # download file
     file_loc, md5_loc = fetch(updates[-1])
 
-    print 'please power-up the Controller and connect your PC to the Solo wifi network.'
+    errprinter('please power-up the Controller and connect your PC to the Solo wifi network.')
 
     # Connect to controller...
     if args['controller']:
-        print 'connecting to Controller...'
+        errprinter('connecting to Controller...')
         client = soloutils.connect_controller(await=True)
     else:
-        print 'connecting to Solo...'
+        errprinter('connecting to Solo...')
         client = soloutils.connect_solo(await=True)
 
     # Prepare the update.
@@ -148,28 +160,28 @@ def main(args):
         soloutils.command_stream(client, 'rm -rf /log/updates && mkdir -p /log/updates')
 
     # Upload the files.
-    print 'uploading updates...'
+    errprinter('uploading updates...')
     scp = SCPClient(client.get_transport())
     scp.put(file_loc, posixpath.join('/log/updates/', posixpath.basename(file_loc)))
     scp.put(md5_loc, posixpath.join('/log/updates/', posixpath.basename(md5_loc)))
     scp.close()
 
     if args['controller']:
-        print "starting update on the Controller..."
+        errprinter("starting update on the Controller...")
     else:
-        print "starting update on Solo..."
+        errprinter("starting update on Solo...")
     code = soloutils.command_stream(client, 'sololink_config --update-apply sololink')
     if code != 0:
         code = soloutils.command_stream(client, 'touch /log/updates/UPDATE && shutdown -r now')
         if args['controller']:
-            print('the Controller will update once it reboots.')
+            errprinter('the Controller will update once it reboots.')
         else:
-            print('Solo will update once it reboots.')
+            errprinter('Solo will update once it reboots.')
     else:
-        print('update succeeded!')
+        errprinter('update succeeded!')
 
     dt = datetime.today() + timedelta(minutes=3, seconds=20)
-    print('please wait up to three minutes longer for the installation to complete (by {}).'.format(dt.strftime('%-I:%M %p')))
+    errprinter('please wait up to three minutes longer for the installation to complete (by {}).'.format(dt.strftime('%-I:%M %p')))
 
     # Complete!
     client.close()
