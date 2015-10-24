@@ -182,7 +182,9 @@ def main(args):
     time.sleep(10)
     controller.close()
 
-    print 'waiting to reconnect (can take up to 60s)...'
+    print ''
+    print 'please disable and renable your WiFi.  then reconnect to Solo\'s network.'
+    print '(this next step may take up to 60s.)'
 
     controller = soloutils.connect_controller(await=True)
     code = soloutils.command_stream(controller, SCRIPT.format(ssid=args['--name'], password=args['--password']))
@@ -199,6 +201,7 @@ def main(args):
         except KeyboardInterrupt:
             pass
 
+        print ''
         print 'setup complete! you are now connected to the Internet.'
         print "(if you are not connected to the Internet on your PC,"
         print " try to disconnect and reconnect to Solo\'s network.)"
