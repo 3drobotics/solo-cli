@@ -4,11 +4,15 @@ from distutils.version import LooseVersion
 # This script operates in two stages: creating the script file
 # and then executing it, so we are resilient to network dropouts.
 
-SCRIPT = """
+SCRIPT3 = """
+wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1
+"""
+
+SCRIPT2 = """
 cat > /tmp/align_channel.py <<'SCRIPT'
 import itertools, re, subprocess
 from pprint import pprint
-import sys
+import sys, time
 
 # align_channel.py 3DR
 
@@ -67,8 +71,6 @@ for entry in build_tree(input):
                         pass
         networks.append((ssid, freq))
 
-print networks
-
 input = subprocess.check_output('iw dev', shell=True)
 curfreq = None
 noht = None
@@ -95,48 +97,54 @@ if not targetfreq:
     print 'Specified SSID not found. Are you sure it was typed correctly?'
     sys.exit(1)
 
+print 'current frequency: ' + curfreq
+print 'target frequency: ' + targetfreq
+sys.stdout.flush()
+time.sleep(1)
+
 if curfreq != targetfreq:
     input = subprocess.check_output('hostapd_cli chan_switch 1 ' + str(targetfreq) + (' ht' if not noht else ''), shell=True)
 
 print '(Target frequency matched.)'
 SCRIPT
 
+ifconfig wlan0 up
+sleep 3
+python /tmp/align_channel.py {ssid}
+"""
+
+SCRIPT = """
 cat > /tmp/setupwifi.sh << 'SCRIPT'
 
-wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1
-if [ $? != 0 ]; then
-    cat <<EOF > /etc/wpa_client.conf
+
+cat <<EOF > /etc/wpa_client.conf
 network={{
-  ssid="{ssid}"
-  psk="{password}"
+ssid="{ssid}"
+psk="{password}"
 }}
 EOF
 
-    echo 1 > /proc/sys/net/ipv4/ip_forward
+echo 1 > /proc/sys/net/ipv4/ip_forward
 
-    sed -i.bak 's/dhcp-option=3.*/dhcp-option=3,10.1.1.1/g' /etc/dnsmasq.conf
-    sed -i.bak 's/dhcp-option=6.*/dhcp-option=6,8.8.8.8/g' /etc/dnsmasq.conf
+sed -i.bak 's/dhcp-option=3.*/dhcp-option=3,10.1.1.1/g' /etc/dnsmasq.conf
+sed -i.bak 's/dhcp-option=6.*/dhcp-option=6,8.8.8.8/g' /etc/dnsmasq.conf
 
-    /etc/init.d/dnsmasq restart
-    sleep 2
-
-    ifconfig wlan0 up
-    python /tmp/align_channel.py {ssid}
-
-    wpa_supplicant -i wlan0 -c /etc/wpa_client.conf -B
-    udhcpc -i wlan0
-
-    sleep 3
-    wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1 || {{
-        echo 'no internet connection available!'
-        echo 'check your wifi credentials and try again.'
-        exit 1
-    }}
-fi
+/etc/init.d/dnsmasq restart
+sleep 2
 
 echo 'connecting to the internet...'
-insmod /lib/modules/3.10.17-rt12-*/kernel/net/ipv4/netfilter/iptable_filter.ko
+wpa_supplicant -i wlan0 -c /etc/wpa_client.conf -B
+udhcpc -i wlan0
 
+sleep 3
+wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1 || {{
+    echo 'no internet connection available!'
+    echo 'check your wifi credentials and try again.'
+    exit 1
+}}
+
+echo 'setting up IP forwarding...'
+insmod /lib/modules/3.10.17-rt12-*/kernel/net/ipv4/netfilter/iptable_filter.ko
 iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
 iptables -A FORWARD -i wlan0 -o wlan0-ap -j ACCEPT
 iptables -A FORWARD -i wlan0-ap -o wlan0 -j ACCEPT
@@ -160,7 +168,25 @@ def main(args):
         print '    solo update controller latest'
         sys.exit(1)
 
+    print 'checking for wifi...'
+    code = soloutils.command_stream(controller, SCRIPT3)
+
+    if code == 0:
+        print 'wifi already connected!'
+        print "(if you are not connected to the Internet on your PC,"
+        print " try to disconnect and reconnect to Solo\'s network.)"
+        sys.exit(code)
+
+    print 'switching to proper channel...'
+    code = soloutils.command_blind(controller, SCRIPT2.format(ssid=args['--name']))
+    time.sleep(10)
+    controller.close()
+
+    print 'waiting to reconnect (can take up to 60s)...'
+
+    controller = soloutils.connect_controller(await=True)
     code = soloutils.command_stream(controller, SCRIPT.format(ssid=args['--name'], password=args['--password']))
+    
     controller.close()
 
     if code == 0:
@@ -175,6 +201,6 @@ def main(args):
 
         print 'setup complete! you are now connected to the Internet.'
         print "(if you are not connected to the Internet on your PC,"
-        print " disconnect and reconnect to Solo\'s network.)"
+        print " try to disconnect and reconnect to Solo\'s network.)"
 
     sys.exit(code)

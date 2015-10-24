@@ -77,6 +77,10 @@ def command_stream(client, cmd, stdout=sys.stdout, stderr=sys.stderr):
     chan.close()
     return code
 
+def command_blind(client, cmd):
+    chan = client.get_transport().open_session()
+    chan.exec_command(cmd)
+
 def command(client, cmd):
     chan = client.get_transport().open_session()
     chan.exec_command(cmd)
