@@ -20,13 +20,13 @@ import tempfile
 import urlparse
 import urllib2
 
-def _connect(ip, await=True):
+def _connect(ip, await=True, silent=False):
     client = paramiko.SSHClient()
     client.load_system_host_keys()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     socket.setdefaulttimeout(5)
-    message = False
+    message = silent
     start = time.time()
     while True:
         try:
@@ -52,11 +52,11 @@ def _connect(ip, await=True):
 
     return client
 
-def connect_controller(await=True):
-    return _connect('10.1.1.1', await=await)
+def connect_controller(await=True, silent=False):
+    return _connect('10.1.1.1', await=await, silent=silent)
 
-def connect_solo(await=True):
-    return _connect('10.1.1.10', await=await)
+def connect_solo(await=True, silent=False):
+    return _connect('10.1.1.10', await=await, silent=silent)
 
 def command_stream(client, cmd, stdout=sys.stdout, stderr=sys.stderr):
     chan = client.get_transport().open_session()

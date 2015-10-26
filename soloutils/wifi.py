@@ -8,114 +8,70 @@ SCRIPT3 = """
 wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1
 """
 
-SCRIPT2 = """
-cat > /tmp/align_channel.py <<'SCRIPT'
-import itertools, re, subprocess
-from pprint import pprint
-import sys, time
+SCRIPT = """
+cat > /tmp/timeout.sh << 'SCRIPT'
+#!/bin/sh
 
-# align_channel.py 3DR
+# Execute a command with a timeout
 
-if len(sys.argv) < 2:
-    print 'Usage: align_channel.py <ssid>'
-    sys.exit(1)
+# License: LGPLv2
+# Author:
+#    http://www.pixelbeat.org/
+# Notes:
+#    Note there is a timeout command packaged with coreutils since v7.0
+#    If the timeout occurs the exit status is 124.
+#    There is an asynchronous (and buggy) equivalent of this
+#    script packaged with bash (under /usr/share/doc/ in my distro),
+#    which I only noticed after writing this.
+#    I noticed later again that there is a C equivalent of this packaged
+#    with satan by Wietse Venema, and copied to forensics by Dan Farmer.
+# Changes:
+#    V1.0, Nov  3 2006, Initial release
+#    V1.1, Nov 20 2007, Brad Greenlee <brad@footle.org>
+#                       Make more portable by using the 'CHLD'
+#                       signal spec rather than 17.
+#    V1.3, Oct 29 2009, Jan Sarenik <jasan@x31.com>
+#                       Even though this runs under dash,ksh etc.
+#                       it doesn't actually timeout. So enforce bash for now.
+#                       Also change exit on timeout from 128 to 124
+#                       to match coreutils.
+#    V2.0, Oct 30 2009, Jan Sarenik <jasan@x31.com>
+#                       Rewritten to cover compatibility with other
+#                       Bourne shell implementations (pdksh, dash)
 
-def build_tree(data):
-    lines = data.split('\\n')
+if [ "$#" -lt "2" ]; then
+    echo "Usage:   `basename $0` timeout_in_seconds command" >&2
+    echo "Example: `basename $0` 2 sleep 3 || echo timeout" >&2
+    exit 1
+fi
 
-    stack = [[]]
-    indent = ['']
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        if line[:len(indent[0])] == indent[0]:
-            leadtab = line[len(indent[0]):len(indent[0]) + 1]
-            if leadtab == '\\t':
-                stack.insert(0, [])
-                indent.insert(0, indent[0] + leadtab)
-            sub = line[len(indent[0]):]
-            if len(sub):
-                stack[0].append(line[len(indent[0]):])
-            i += 1
-        else:
-            last = stack.pop(0)
+cleanup()
+{{
+    trap - ALRM               #reset handler to default
+    kill -ALRM $a 2>/dev/null #stop timer subshell if running
+    kill $! 2>/dev/null &&    #kill last job
+      exit 124                #exit with 124 if it was running
+}}
 
-            # Tabs can roll onto previous line if short enough
-            if stack[0][-1] and '\\t' in stack[0][-1]:
-                a = stack[0][-1].split('\\t')
-                stack[0][-1] = a[0] or ''
-                last.insert(0, a[1] or '')
+watchit()
+{{
+    trap "cleanup" ALRM
+    sleep $1& wait
+    kill -ALRM $$
+}}
 
-            stack[0].append(last)
-            indent.pop(0)
-
-    return stack.pop()
-
-input = subprocess.check_output('iw dev wlan0 scan ap-force', shell=True)
-networks = []
-for entry in build_tree(input):
-    if not isinstance(entry, basestring):
-        ssid = None
-        freq = None
-        for e in entry:
-            if isinstance(e, basestring):
-                if 'SSID' in e:
-                    try:
-                        ssid = e.split(None, 2)[1]
-                    except:
-                        pass
-                if 'freq' in e:
-                    try:
-                        freq = e.split(None, 2)[1]
-                    except:
-                        pass
-        networks.append((ssid, freq))
-
-input = subprocess.check_output('iw dev', shell=True)
-curfreq = None
-noht = None
-for phy in build_tree(input):
-    if not isinstance(phy, basestring):
-        for i in xrange(0, len(phy)):
-            if isinstance(phy[i], basestring) and 'wlan0-ap' in phy[i]:
-                try:
-                    curfreq = re.search(r'(\d+) [Mm][Hh][Zz]', '\\n'.join(phy[i+1])).group(1)
-                except:
-                    pass
-                noht = re.search(r'[Nn][Oo] HT', '\\n'.join(phy[i+1]))
-
-if not curfreq:
-    print 'Could not identify current frequency, trying anyway...'
-
-targetfreq = None
-for (S, M) in networks:
-    if S == sys.argv[1]:
-        if not targetfreq or targetfreq != curfreq:
-            targetfreq = M
-
-if not targetfreq:
-    print 'Specified SSID not found. Are you sure it was typed correctly?'
-    sys.exit(1)
-
-print 'current frequency: ' + curfreq
-print 'target frequency: ' + targetfreq
-sys.stdout.flush()
-time.sleep(1)
-
-if curfreq != targetfreq:
-    input = subprocess.check_output('hostapd_cli chan_switch 1 ' + str(targetfreq) + (' ht' if not noht else ''), shell=True)
-
-print '(Target frequency matched.)'
+watchit $1& a=$!         #start the timeout
+shift                    #first param was timeout for sleep
+trap "cleanup" ALRM INT  #cleanup after timeout
+"$@"& wait $!; RET=$?    #start the job wait for it and save its return value
+kill -ALRM $a            #send ALRM signal to watchit
+wait $a                  #wait for watchit to finish cleanup
+exit $RET                #return the value
 SCRIPT
 
-ifconfig wlan0 up
-sleep 3
-python /tmp/align_channel.py {ssid}
-"""
-
-SCRIPT = """
 cat > /tmp/setupwifi.sh << 'SCRIPT'
 
+/etc/init.d/hostapd stop
 
 cat <<EOF > /etc/wpa_client.conf
 network={{
@@ -134,24 +90,35 @@ sleep 2
 
 echo 'connecting to the internet...'
 wpa_supplicant -i wlan0 -c /etc/wpa_client.conf -B
-udhcpc -i wlan0
 
-sleep 3
-wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1 || {{
-    echo 'no internet connection available!'
-    echo 'check your wifi credentials and try again.'
-    exit 1
+/tmp/timeout.sh 15 udhcpc -i wlan0 || {{
+    echo -e "\\nerror: wrong credentials or couldn't connect to wifi network!\\n"
+    ifconfig wlan0 down
 }}
 
-echo 'setting up IP forwarding...'
-insmod /lib/modules/3.10.17-rt12-*/kernel/net/ipv4/netfilter/iptable_filter.ko
-iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
-iptables -A FORWARD -i wlan0 -o wlan0-ap -j ACCEPT
-iptables -A FORWARD -i wlan0-ap -o wlan0 -j ACCEPT
+/etc/init.d/hostapd start
+
+sleep 3
+wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1
+if [[ $? -ne '0' ]]; then
+    echo ''
+    echo 'error: no internet connection available!'
+    echo 'error: check your wifi credentials and try again.'
+else
+    echo 'setting up IP forwarding...'
+    insmod /lib/modules/3.10.17-rt12-*/kernel/net/ipv4/netfilter/iptable_filter.ko
+    iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
+    iptables -A FORWARD -i wlan0 -o wlan0-ap -j ACCEPT
+    iptables -A FORWARD -i wlan0-ap -o wlan0 -j ACCEPT
+    echo ''
+    echo 'success: Solo is now connected to the Internet.'
+fi
+
 SCRIPT
 
+chmod +x /tmp/timeout.sh
 chmod +x /tmp/setupwifi.sh
-/tmp/setupwifi.sh
+bash /tmp/setupwifi.sh > /log/setupwifi.log 2>&1
 """
 
 def main(args):
@@ -168,42 +135,18 @@ def main(args):
         print '    solo update controller latest'
         sys.exit(1)
 
-    print 'checking for wifi...'
-    code = soloutils.command_stream(controller, SCRIPT3)
-
-    if code == 0:
-        print 'wifi already connected!'
-        print "(if you are not connected to the Internet on your PC,"
-        print " try to disconnect and reconnect to Solo\'s network.)"
-        sys.exit(code)
-
-    print 'switching to proper channel...'
-    code = soloutils.command_blind(controller, SCRIPT2.format(ssid=args['--name']))
-    time.sleep(10)
+    print 'configuring wifi network...'
+    print '(your computer will disconnect from Solo\'s network)'
+    controller = soloutils.connect_controller(await=True)
+    code = soloutils.command_blind(controller, SCRIPT.format(ssid=args['--name'], password=args['--password']))
+    time.sleep(8)
     controller.close()
 
     print ''
-    print 'please disable and renable your WiFi.  then reconnect to Solo\'s network.'
-    print '(this next step may take up to 60s.)'
-
-    controller = soloutils.connect_controller(await=True)
-    code = soloutils.command_stream(controller, SCRIPT.format(ssid=args['--name'], password=args['--password']))
-    
+    print 'please manually reconnect to Solo\'s network once it becomes available. (up to 20s)'
+    controller = soloutils.connect_controller(await=True, silent=True)
+    print ''
+    code = soloutils.command_stream(controller, 'cat /log/setupwifi.log')
     controller.close()
-
-    if code == 0:
-        try:
-            print 'resetting Solo\'s wifi...'
-            print '(if solo is not online, you can hit Ctrl+C safely now.)'
-            solo = soloutils.connect_solo(await=True)
-            soloutils.command_stream(solo, 'init 2 && init 4')
-            solo.close()
-        except KeyboardInterrupt:
-            pass
-
-        print ''
-        print 'setup complete! you are now connected to the Internet.'
-        print "(if you are not connected to the Internet on your PC,"
-        print " try to disconnect and reconnect to Solo\'s network.)"
 
     sys.exit(code)
