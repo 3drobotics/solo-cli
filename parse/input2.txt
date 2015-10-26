@@ -1,0 +1,13 @@
+phy#0
+	Interface wlan0-ap
+		ifindex 4
+		wdev 0x2
+		addr 8a:dc:96:33:f6:ed
+		ssid SoloLink_33F6ED
+		type AP
+		channel 11 (2462 MHz), width: 20 MHz (no HT), center1: 2462 MHz
+	Interface wlan0
+		ifindex 3
+		wdev 0x1
+		addr 88:dc:96:33:f6:ed
+		type managed
