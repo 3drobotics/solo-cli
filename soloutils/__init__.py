@@ -116,10 +116,16 @@ def solo_versions(solo):
 
 def gimbal_versions(solo):
     code, gimbal_str, stderr = soloutils.command(solo, 'cat /AXON_VERSION')
-    version, = gimbal_str.strip().split()
-    return {
-        "version": version,
-    }
+    try:
+        version, = gimbal_str.strip().split()
+        return {
+            "version": version,
+            "connected": True,
+        }
+    except:
+        return {
+            "connected": False,
+        }
 
 def pixhawk_versions(solo):
     code, pixhawk_str, stderr = soloutils.command(solo, 'cat /PIX_VERSION')
