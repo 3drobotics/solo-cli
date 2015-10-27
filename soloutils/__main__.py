@@ -3,7 +3,7 @@ Solo command line utilities.
 
 Usage:
   solo info
-  solo wifi --name=<n> --password=<p>
+  solo wifi --name=<n> [--password=<p>]
   solo update (solo|controller|both) (latest|<version>|--list)
   solo revert (solo|controller|both) (latest|current|factory|<version>|--list)
   solo provision
