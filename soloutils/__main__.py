@@ -4,8 +4,8 @@ Solo command line utilities.
 Usage:
   solo info
   solo wifi --name=<n> [--password=<p>]
-  solo update (solo|controller|both) (latest|<version>|--list)
-  solo revert (solo|controller|both) (latest|current|factory|<version>|--list)
+  solo flash (drone|controller|all) (latest|current|factory|<version>) [--clean]
+  solo flash --list
   solo provision
   solo resize
   solo logs (download)
@@ -29,10 +29,8 @@ args = docopt(__doc__, version='solo-utils 1.0')
 import base64, time, sys
 import soloutils
 
-if args['update']:
-    soloutils.update.main(args)
-elif args['revert']:
-	  soloutils.revert.main(args)
+if args['flash']:
+    soloutils.flash.main(args)
 elif args['info']:
 	  soloutils.info.main(args)
 elif args['provision']:
