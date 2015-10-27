@@ -18,7 +18,7 @@ Solo command line utilities.
 Usage:
   solo info
   solo wifi --name=<n> [--password=<p>]
-  solo flash (drone|controller|all) (latest|current|factory|<version>) [--clean]
+  solo flash (drone|controller|both) (latest|current|factory|<version>) [--clean]
   solo flash --list
   solo provision
   solo resize

@@ -103,7 +103,7 @@ def list():
     sys.exit(0)
 
 def clean_settings(args):
-    if args['all']:
+    if args['both']:
         group = 'Solo and the Controller'
     if args['drone']:
         group = 'Solo'
@@ -112,30 +112,30 @@ def clean_settings(args):
 
     print('connecting to {}...'.format(group))
 
-    if args['drone'] or args['all']:
+    if args['drone'] or args['both']:
         solo = soloutils.connect_solo(await=True)
-    if args['controller'] or args['all']:
+    if args['controller'] or args['both']:
         controller = soloutils.connect_controller(await=True)
 
-    if args['drone'] or args['all']:
+    if args['drone'] or args['both']:
         soloutils.settings_reset(solo)
         print('Solo will delete user files once it reboots.')
-    if args['controller'] or args['all']:
+    if args['controller'] or args['both']:
         newstyle = soloutils.settings_reset(controller)
         print('Controller will delete user files once it reboots.')
 
     dt = datetime.today() + timedelta(minutes=4)
     print('please wait up to four minutes longer for the process to complete (by {}).'.format(dt.strftime('%-I:%M')))
 
-    if args['drone'] or args['all']:
+    if args['drone'] or args['both']:
         solo.close()
-    if args['controller'] or args['all']:
+    if args['controller'] or args['both']:
         controller.close()
 
     sys.exit(0)
 
 def factory_reset(args):
-    if args['all']:
+    if args['both']:
         group = 'Solo and the Controller'
     if args['drone']:
         group = 'Solo'
@@ -144,24 +144,24 @@ def factory_reset(args):
 
     print('connecting to {}...'.format(group))
 
-    if args['drone'] or args['all']:
+    if args['drone'] or args['both']:
         solo = soloutils.connect_solo(await=True)
-    if args['controller'] or args['all']:
+    if args['controller'] or args['both']:
         controller = soloutils.connect_controller(await=True)
 
-    if args['drone'] or args['all']:
+    if args['drone'] or args['both']:
         soloutils.factory_reset(solo)
         print('Solo will restore to factory version once it reboots.')
-    if args['controller'] or args['all']:
+    if args['controller'] or args['both']:
         newstyle = soloutils.factory_reset(controller)
         print('Controller will restore to factory version once it reboots.')
 
     dt = datetime.today() + timedelta(minutes=4)
     print('please wait up to four minutes longer for the process to complete (by {}).'.format(dt.strftime('%-I:%M')))
 
-    if args['drone'] or args['all']:
+    if args['drone'] or args['both']:
         solo.close()
-    if args['controller'] or args['all']:
+    if args['controller'] or args['both']:
         controller.close()
 
     sys.exit(0)
@@ -239,7 +239,7 @@ def main(args):
         list()
         return
 
-    if args['all']:
+    if args['both']:
         group = 'Solo and the Controller'
     if args['drone']:
         group = 'Solo'
@@ -287,9 +287,9 @@ def main(args):
     errprinter('checking Internet connectivity...')
     soloutils.await_net()
 
-    if args['drone'] or args['all']:
+    if args['drone'] or args['both']:
         drone_file, drone_md5 = download_firmware('drone', version)
-    if args['controller'] or args['all']:
+    if args['controller'] or args['both']:
         controller_file, controller_md5 = download_firmware('controller', version)
 
     errprinter('')
@@ -297,11 +297,11 @@ def main(args):
     errprinter('to Solo\'s wifi network.')
 
     errprinter('')
-    if args['drone'] or args['all']:
+    if args['drone'] or args['both']:
         code = flash('drone', drone_file, drone_md5, args)
-    if args['all']:
+    if args['both']:
         errprinter('')
-    if args['controller'] or args['all']:
+    if args['controller'] or args['both']:
         code = flash('controller', controller_file, controller_md5, args)
         if code != 0:
             sys.exit(code)
