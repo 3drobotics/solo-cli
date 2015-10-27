@@ -1,6 +1,5 @@
-import update
+import flash
 import wifi
-import revert
 import info
 import provision
 import soloutils
@@ -141,6 +140,12 @@ def settings_reset(target):
     code = soloutils.command_stream(target, 'sololink_config --settings-reset')
     if code != 0:
         code = soloutils.command_stream(target, 'mkdir -p /log/updates && touch /log/updates/RESETSETTINGS && shutdown -r now')
+    return code == 0
+
+def factory_reset(target):
+    code = soloutils.command_stream(target, 'sololink_config --factory-reset')
+    if code != 0:
+        code = soloutils.command_stream(target, 'mkdir -p /log/updates && touch /log/updates/FACTORYRESET && shutdown -r now')
     return code == 0
 
 def await_net():

@@ -17,9 +17,9 @@ Solo command line utilities.
 
 Usage:
   solo info
-  solo wifi --name=<n> --password=<p>
-  solo update (solo|controller|both) (latest|<version>)
-  solo revert (solo|controller|both) (latest|current|factory|<version>)
+  solo wifi --name=<n> [--password=<p>]
+  solo flash (drone|controller|all) (latest|current|factory|<version>) [--clean]
+  solo flash --list
   solo provision
   solo resize
   solo logs (download)
@@ -32,6 +32,7 @@ Options:
   -h --help        Show this screen.
   --name=<n>       WiFi network name.
   --password=<p>   WiFi password.
+  --list           Lists available updates.
 ```
 
 
@@ -53,11 +54,15 @@ setup complete.
 ```
 
 
-### update and revert
+### flash
 
-`solo update` will update Solo to a given version. This process does not clear user modifications to the filesystem, so ensure that the update process will not be impacted by these.
+`solo flash` will update Solo and the Controller to a given version.
 
-`solo revert` destructively reverts Solo to a given version, including to factory ("gold") settings. This removes all user modifications from the filesystem, and is recommended if you do not care about losing these changes.
+* `latest` refers to the most recent stable released firmware.
+* `current` refers to what is currently installed. (Useful for clearing user settings via `--clean`)
+* `factory` refers to the "golden" factory image originally shipped with Solo.
+
+You can specify the `--clean` parameter to clear all user modifications to the filesystem. By omitting this flag, the update will proceed as best as it can, though some user modifications can potentially interfere with newer updates. It's recommended you back up any files you don't want destroyed.
 
 
 ### resize
