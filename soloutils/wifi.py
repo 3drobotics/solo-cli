@@ -72,11 +72,11 @@ SCRIPT
 cat > /tmp/setupwifi.sh << 'SCRIPT'
 
 /etc/init.d/hostapd stop
+killall wpa_supplicant
 
 cat <<EOF > /etc/wpa_client.conf
 network={{
-ssid="{ssid}"
-psk="{password}"
+{credentials}
 }}
 EOF
 
@@ -102,16 +102,16 @@ sleep 3
 wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1
 if [[ $? -ne '0' ]]; then
     echo ''
-    echo 'error: no internet connection available!'
+    echo 'error: could not connect to the Internet!'
     echo 'error: check your wifi credentials and try again.'
 else
     echo 'setting up IP forwarding...'
-    insmod /lib/modules/3.10.17-rt12-*/kernel/net/ipv4/netfilter/iptable_filter.ko
+    insmod /lib/modules/3.10.17-rt12-*/kernel/net/ipv4/netfilter/iptable_filter.ko 2>/dev/null
     iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
     iptables -A FORWARD -i wlan0 -o wlan0-ap -j ACCEPT
     iptables -A FORWARD -i wlan0-ap -o wlan0 -j ACCEPT
     echo ''
-    echo 'success: Solo is now connected to the Internet.'
+    echo 'success: Solo and your computer are now connected to the Internet.'
 fi
 
 SCRIPT
@@ -127,7 +127,7 @@ def main(args):
 
     controller_version = soloutils.controller_versions(controller)['version']
     if LooseVersion('1.2.0') > LooseVersion(controller_version):
-        print 'error: expecting Controller to be >= 1.2.0'
+        print 'error: expecting version to be >= 1.2.0'
         print 'your Controller version: {}'.format(controller_version)
         print 'please flash your Controller with a newer version to run this command.'
         print ''
@@ -135,15 +135,23 @@ def main(args):
         print '    solo update controller latest'
         sys.exit(1)
 
-    print 'configuring wifi network...'
-    print '(your computer will disconnect from Solo\'s network)'
+    print ''
+    if args['--password']:
+        print 'connecting to encrypted wifi network.'
+        credentials = 'ssid="{ssid}"\npsk="{password}"'.format(ssid=args['--name'], password=args['--password'])
+    else:
+        print 'connecting to wifi network with NO password.'
+        credentials = 'ssid="{ssid}"\nkey_mgmt=NONE'.format(ssid=args['--name'])
+    print '(your computer may disconnect from Solo\'s network.)'
+
     controller = soloutils.connect_controller(await=True)
-    code = soloutils.command_blind(controller, SCRIPT.format(ssid=args['--name'], password=args['--password']))
+    code = soloutils.command_blind(controller, SCRIPT.format(credentials=credentials))
     time.sleep(8)
     controller.close()
 
     print ''
-    print 'please manually reconnect to Solo\'s network once it becomes available. (up to 20s)'
+    print 'please manually reconnect to Solo\'s network once it becomes available.'
+    print 'it may take up to 30s to a reconnect to succeed.'
     controller = soloutils.connect_controller(await=True, silent=True)
     print ''
     code = soloutils.command_stream(controller, 'cat /log/setupwifi.log')
