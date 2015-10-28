@@ -75,7 +75,8 @@ cat > /tmp/setupwifi.sh << 'SCRIPT'
 rm /mnt/rootfs.rw/lib/modules/3.10.17-rt12-*/kernel/net/ipv4/netfilter/iptable_filter.ko || true
 
 /etc/init.d/hostapd stop
-killall wpa_supplicant
+killall wpa_supplicant || true
+killall udhcpc || true
 
 cat <<EOF > /etc/wpa_client.conf
 network={{
@@ -106,7 +107,7 @@ wget -O- http://example.com/ --timeout=5 >/dev/null 2>&1
 if [[ $? -ne '0' ]]; then
     echo ''
     echo 'error: could not connect to the Internet!'
-    echo 'error: check your wifi credentials and try again.'
+    echo 'please check your wifi credentials and try again.'
 else
     echo 'setting up IP forwarding...'
     insmod /lib/modules/3.10.17-rt12-*/kernel/net/ipv4/netfilter/iptable_filter.ko 2>/dev/null
@@ -114,7 +115,9 @@ else
     iptables -A FORWARD -i wlan0 -o wlan0-ap -j ACCEPT
     iptables -A FORWARD -i wlan0-ap -o wlan0 -j ACCEPT
     echo ''
-    echo 'success: Solo and your computer are now connected to the Internet.'
+    echo 'success: Solo is now connected to the Internet.'
+    echo 'if your computer does not yet have Internet access, try'
+    echo "disconnecting and reconnecting to Solo's wifi network."
 fi
 
 SCRIPT
@@ -159,5 +162,16 @@ def main(args):
     print ''
     code = soloutils.command_stream(controller, 'cat /log/setupwifi.log')
     controller.close()
+
+    try:
+        drone = soloutils.connect_solo(await=False)
+        print '(restarting Solo\'s wifi connection...',
+        sys.stdout.flush()
+        soloutils.command(drone, 'ifdown wlan0; ifdown -a; ifup -a; ifup wlan0')
+        time.sleep(4)
+        drone.close()
+        print ' done.)'
+    except:
+        pass
 
     sys.exit(code)
