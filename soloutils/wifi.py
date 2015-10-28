@@ -71,6 +71,9 @@ SCRIPT
 
 cat > /tmp/setupwifi.sh << 'SCRIPT'
 
+# Delete old files
+rm /mnt/rootfs.rw/lib/modules/3.10.17-rt12-*/kernel/net/ipv4/netfilter/iptable_filter.ko || true
+
 /etc/init.d/hostapd stop
 killall wpa_supplicant
 
