@@ -165,7 +165,7 @@ def main(args):
 
     try:
         drone = soloutils.connect_solo(await=False)
-        print '(restarting Solo\'s wifi connection...',
+        print '(resetting Solo\'s DNS...',
         sys.stdout.flush()
         soloutils.command(drone, 'ifdown wlan0; ifdown -a; ifup -a; ifup wlan0')
         time.sleep(4)
