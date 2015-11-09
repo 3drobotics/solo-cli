@@ -2,7 +2,7 @@ import paramiko, base64, time, sys, soloutils
 from distutils.version import LooseVersion
 
 ACQUIRE = """
-TOGGLE="if [ -e /tmp/ACQUIRE_VIDEO_FEED ]; then while true; do sleep 100000; done; fi"
+TOGGLE="if [ -e /home/root/ACQUIRE_VIDEO_FEED ]; then while true; do sleep 100000; done; fi"
 
 echo 'acquiring video feed...'
 grep -q "while true; do sleep 100000; done" /usr/bin/video_send.sh || {
@@ -13,15 +13,18 @@ grep -q "while true; do sleep 100000; done" /usr/bin/video_send.sh || {
     cat /usr/bin/video_send.sh.bkp >> /usr/bin/video_send.sh
 }
 
-touch /tmp/ACQUIRE_VIDEO_FEED
+touch ~/ACQUIRE_VIDEO_FEED
 killall video_send.sh sn_master_snd sn_sender sn_pktsnd gst-launch-0.10 2>/dev/null
 init q
-echo '/dev/video0 now available for use by user scripts.'
+echo '/dev/video0 will be available for use by user scripts after reboot.'
+echo 'rebooting...'
+sync
+reboot
 """
 
 RESTORE = """
 echo 'restoring video feed...'
-rm /tmp/ACQUIRE_VIDEO_FEED 2> /dev/null
+rm ~/ACQUIRE_VIDEO_FEED 2> /dev/null
 killall video_send.sh sn_master_snd sn_sender sn_pktsnd gst-launch-0.10 2>/dev/null
 init q
 echo '/dev/video0 reclaimed for the video downlink.'
