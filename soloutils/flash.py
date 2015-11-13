@@ -218,6 +218,29 @@ def flash(target, firmware_file, firmware_md5, args):
 
     return code
 
+def flash_px4(firmware_file):
+    errprinter('connecting to Solo...')
+    client = soloutils.connect_solo(await=True)
+    soloutils.command_stream(client, 'rm -rf /firmware/loaded')
+
+    # Upload the files.
+    errprinter('uploading files...')
+    scp = SCPClient(client.get_transport())
+    scp.put(firmware_file, '/firmware')
+    scp.close()
+
+    # shutdown solo for firmware reflash
+    code = soloutils.command_stream(client, 'shutdown -r now')
+    errprinter('Solo will update once it reboots!')
+
+    dt = datetime.today() + timedelta(minutes=4)
+    errprinter('please wait up to four minutes longer for the installation to complete (by {}).'.format(dt.strftime('%-I:%M')))
+
+    # Complete!
+    client.close()
+
+    sys.exit(0)
+
 def download_firmware(target, version):
     if target == 'controller':
         product = [1, 10]
@@ -238,6 +261,11 @@ def main(args):
     if args['--list']:
         list()
         return
+
+    if args['pixhawk']:
+        firmware_file=args['--fileName']
+        flash_px4(firmware_file)
+        return    
 
     if args['both']:
         group = 'Solo and the Controller'
