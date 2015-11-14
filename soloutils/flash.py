@@ -263,9 +263,10 @@ def main(args):
         return
 
     if args['pixhawk']:
-        firmware_file=args['--fileName']
-        flash_px4(firmware_file)
-        return    
+        if args['<filename>']:
+            firmware_file = args['<filename>']
+            flash_px4(firmware_file)
+    return    
 
     if args['both']:
         group = 'Solo and the Controller'

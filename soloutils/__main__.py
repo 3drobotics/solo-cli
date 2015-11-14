@@ -6,7 +6,7 @@ Usage:
   solo wifi --name=<n> [--password=<p>]
   solo flash (drone|controller|both) (latest|current|factory|<version>) [--clean]
   solo flash --list
-  solo flash pixhawk [--fileName=<fn>]
+  solo flash pixhawk <filename>
   solo provision
   solo resize
   solo logs (download)
