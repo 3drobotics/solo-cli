@@ -231,6 +231,7 @@ def flash_px4(firmware_file):
 
     # shutdown solo for firmware reflash
     code = soloutils.command_stream(client, 'shutdown -r now')
+    #code = soloutils.command_stream(client, 'loadPixhawk.py')
     errprinter('Solo will update once it reboots!')
 
     dt = datetime.today() + timedelta(minutes=4)
@@ -266,7 +267,7 @@ def main(args):
         if args['<filename>']:
             firmware_file = args['<filename>']
             flash_px4(firmware_file)
-    return    
+    	return    
 
     if args['both']:
         group = 'Solo and the Controller'
