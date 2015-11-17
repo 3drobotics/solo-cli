@@ -230,9 +230,10 @@ def flash_px4(firmware_file):
     scp.close()
 
     # shutdown solo for firmware reflash
-    #code = soloutils.command_stream(client, 'shutdown -r now')
-    code = soloutils.command_stream(client, 'loadPixhawk.py')
-    #errprinter('Solo will update once it reboots!')
+    errprinter('flashing pixhawk firmware...')
+    soloutils.command_stream(client, 'init 2')
+    soloutils.command_stream(client, 'loadPixhawk.py')
+    soloutils.command_stream(client, 'init 4')
     errprinter('Pixhawk has been updated to new firmware')
     #dt = datetime.today() + timedelta(minutes=4)
     #errprinter('please wait up to four minutes longer for the installation to complete (by {}).'.format(dt.strftime('%-I:%M')))
