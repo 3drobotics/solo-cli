@@ -218,28 +218,33 @@ def flash(target, firmware_file, firmware_md5, args):
 
     return code
 
-def flash_px4(firmware_file):
-    errprinter('connecting to Solo...')
-    client = soloutils.connect_solo(await=True)
+def flash_stm32(target, firmware_file):
+    if target == 'pixhawk':
+        errprinter('connecting to Solo...')
+        client = soloutils.connect_solo(await=True)
+    else:
+        errprinter('connecting to controller...')
+        client = soloutils.connect_controller(await=True)
+    
     soloutils.command_stream(client, 'rm -rf /firmware/loaded')
 
     # Upload the files.
     errprinter('uploading files...')
     scp = SCPClient(client.get_transport())
     scp.put(firmware_file, '/firmware')
-    scp.close()
+    scp.close();
 
     # shutdown solo for firmware reflash
-    #code = soloutils.command_stream(client, 'shutdown -r now')
-    code = soloutils.command_stream(client, 'loadPixhawk.py')
-    #errprinter('Solo will update once it reboots!')
-    errprinter('Pixhawk has been updated to new firmware')
-    #dt = datetime.today() + timedelta(minutes=4)
-    #errprinter('please wait up to four minutes longer for the installation to complete (by {}).'.format(dt.strftime('%-I:%M')))
+    if target == 'pixhawk':
+    	errprinter('Pixhawk will be flashed after rebooting...')
+    	errprinter('Please reboot the system now!')
+    else:
+        errprinter('Flashing artoo firmware...')
+        soloutils.command_stream(client, 'init 2')
+        soloutils.command_stream(client, 'checkArtooAndUpdate.py')
+        soloutils.command_stream(client, 'init 4')
 
-    # Complete!
-    client.close()
-
+    client.close
     sys.exit(0)
 
 def download_firmware(target, version):
@@ -266,8 +271,14 @@ def main(args):
     if args['pixhawk']:
         if args['<filename>']:
             firmware_file = args['<filename>']
-            flash_px4(firmware_file)
-    	return    
+            flash_stm32('pixhawk', firmware_file)
+    	return
+
+    if args['artoo']:
+        if args['<filename>']:
+            firmware_file = args['<filename>']
+            flash_stm32('artoo', firmware_file)
+        return    
 
     if args['both']:
         group = 'Solo and the Controller'
