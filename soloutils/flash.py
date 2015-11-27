@@ -232,13 +232,19 @@ def flash_stm32(target, firmware_file):
     errprinter('uploading files...')
     scp = SCPClient(client.get_transport())
     scp.put(firmware_file, '/firmware')
-    scp.close()
+    scp.close();
 
     # shutdown solo for firmware reflash
-    errprinter('Pixhawk will be flashed after rebooting...')
-    errprinter('Please reboot the system now!')
-    client.close()
+    if target == 'pixhawk':
+    	errprinter('Pixhawk will be flashed after rebooting...')
+    	errprinter('Please reboot the system now!')
+    else:
+        errprinter('Flashing artoo firmware...')
+        soloutils.command_stream(client, 'init 2')
+        soloutils.command_stream(client, 'checkArtooAndUpdate.py')
+        soloutils.command_stream(client, 'init 4')
 
+    client.close
     sys.exit(0)
 
 def download_firmware(target, version):
