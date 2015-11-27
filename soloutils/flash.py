@@ -218,9 +218,14 @@ def flash(target, firmware_file, firmware_md5, args):
 
     return code
 
-def flash_px4(firmware_file):
-    errprinter('connecting to Solo...')
-    client = soloutils.connect_solo(await=True)
+def flash_stm32(target, firmware_file):
+    if target == 'pixhawk':
+        errprinter('connecting to Solo...')
+        client = soloutils.connect_solo(await=True)
+    else:
+        errprinter('connecting to controller...')
+        client = soloutils.connect_controller(await=True)
+    
     soloutils.command_stream(client, 'rm -rf /firmware/loaded')
 
     # Upload the files.
@@ -260,8 +265,14 @@ def main(args):
     if args['pixhawk']:
         if args['<filename>']:
             firmware_file = args['<filename>']
-            flash_px4(firmware_file)
-    	return    
+            flash_stm32('pixhawk', firmware_file)
+    	return
+
+    if args['artoo']:
+        if args['<filename>']:
+            firmware_file = args['<filename>']
+            flash_stm32('artoo', firmware_file)
+        return    
 
     if args['both']:
         group = 'Solo and the Controller'
