@@ -26,7 +26,7 @@ Options:
 import threading, time
 
 from docopt import docopt
-args = docopt(__doc__, version='solo-utils 1.0')
+args = docopt(__doc__, version='solo-cli 1.1.0')
 
 import base64, time, sys
 import soloutils
@@ -54,25 +54,24 @@ elif args['resize']:
 elif args['video']:
     soloutils.video.main(args)
 elif args['script']:
-    if sys.platform.startswith("win"):
-        print 'ERROR: solo script does not yet support Windows.'
-        print 'please follow along with its progress on github.'
-        sys.exit(1)
-
     if sys.argv[2] == 'pack':
+        if sys.platform.startswith("win"):
+            print 'ERROR: "solo script pack" does not yet run on Windows.'
+            print 'please follow along with its progress on github.'
+            sys.exit(1)
+
+        print 'checking Internet connectivity...'
+        soloutils.await_net()
+
         Popen([os.path.join(os.path.dirname(__file__), 'solocode-pack.sh')] + sys.argv[3:], cwd=os.curdir).communicate()
     elif sys.argv[2] == 'push':
-        Popen([os.path.join(os.path.dirname(__file__), 'solocode-push.sh')] + sys.argv[3:], cwd=os.curdir).communicate()
+        soloutils.script.push_main(args)
     elif sys.argv[2] == 'run':
         if len(sys.argv) < 4:
             print 'Usage: solo script run <file.py>'
             sys.exit(1)
-        if not os.path.exists('solo-script.tar.gz'):
-            print 'ERROR: Please run "solo script pack" first to bundle your archive.'
-            sys.exit(1)
-        Popen([os.path.join(os.path.dirname(__file__), 'solocode-run.sh')] + sys.argv[3:], cwd=os.curdir).communicate()
-    elif sys.argv[2] == 'simple':
-        Popen([os.path.join(os.path.dirname(__file__), 'solocode-simple.sh')] + sys.argv[3:], cwd=os.curdir).communicate()
+        
+        soloutils.script.run_main(args)
     else:
         print('Usage: solo script (pack|push|run)')
         sys.exit(1)

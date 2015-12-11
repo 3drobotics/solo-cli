@@ -5,29 +5,7 @@ from distutils.version import LooseVersion
 from scp import SCPClient
 import posixpath
 
-# This script operates in two stages: creating the script file
-# and then executing it, so we are resilient to network dropouts.
-
-SCRIPT = """
-pip --version 2>/dev/null
-if [ $? == 0 ]; then
-    echo 'pip is installed on Solo.'
-    exit 0
-fi
-
-python -c "import urllib2; print urllib2.urlopen('https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py').read()" | python
-pip install pip --upgrade
-
-echo ''
-pip --version
-echo 'pip is installed on Solo.'
-"""
-
-def main(args):
-    print 'connecting to solo...'
-    solo = soloutils.connect_solo(await=True)
-    scp = SCPClient(solo.get_transport())
-
+def run(solo, scp):
     code, stdout, stderr = soloutils.command(solo, 'pip --version')
     if code != 0:
         print 'installing pip... ',
@@ -39,7 +17,7 @@ def main(args):
             print 'Error in installing pip:'
             print stdout
             print stderr
-            sys.exit(1)
+            return 1
         print 'done.'
 
     code, stdout, stderr = soloutils.command(solo, 'python -c "import wheel"')
@@ -52,7 +30,7 @@ def main(args):
             print 'Error in installing wheel:'
             print stdout
             print stderr
-            sys.exit(1)
+            return 1
         print 'done.'
 
     code, stdout, stderr = soloutils.command(solo, 'virtualenv --version')
@@ -65,8 +43,21 @@ def main(args):
             print 'Error in installing virtualenv:'
             print stdout
             print stderr
-            sys.exit(1)
+            return 1
         print 'done.'
+
+    return 0
+
+def main(args):
+    print 'connecting to solo...'
+    solo = soloutils.connect_solo(await=True)
+    scp = SCPClient(solo.get_transport())
+
+    code = run(solo, scp)
+    if code == 0:
+        print 'pip is ready to use.'
 
     scp.close()
     solo.close()
+
+    sys.exit(code)
