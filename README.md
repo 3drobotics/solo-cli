@@ -103,11 +103,6 @@ These install `pip`, the Python package manager, `runit`, a startup service mana
 
 Download logs from Solo into your current folder.
 
-# solocode
-
-```
-pip install --user -UI git+https://github.com/tcr3dr/solocode
-```
 
 ### script
 
