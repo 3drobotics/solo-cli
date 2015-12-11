@@ -14,6 +14,7 @@ Usage:
   solo install-smart
   solo install-runit
   solo video (acquire|restore)
+  solo script [<arg>...]
 
 Options:
   -h --help        Show this screen.
@@ -29,6 +30,8 @@ args = docopt(__doc__, version='solo-utils 1.0')
 
 import base64, time, sys
 import soloutils
+from subprocess import Popen
+import os
 
 if args['flash']:
     soloutils.flash.main(args)
@@ -50,6 +53,29 @@ elif args['resize']:
     soloutils.resize.main(args)
 elif args['video']:
     soloutils.video.main(args)
+elif args['script']:
+    if sys.platform.startswith("win"):
+        print 'ERROR: solo script does not yet support Windows.'
+        print 'please follow along with its progress on github.'
+        sys.exit(1)
+
+    if sys.argv[2] == 'pack':
+        Popen([os.path.join(os.path.dirname(__file__), 'solocode-pack.sh')] + sys.argv[3:], cwd=os.curdir).communicate()
+    elif sys.argv[2] == 'push':
+        Popen([os.path.join(os.path.dirname(__file__), 'solocode-push.sh')] + sys.argv[3:], cwd=os.curdir).communicate()
+    elif sys.argv[2] == 'run':
+        if len(sys.argv) < 4:
+            print 'Usage: solo script run <file.py>'
+            sys.exit(1)
+        if not os.path.exists('solo-script.tar.gz'):
+            print 'ERROR: Please run "solo script pack" first to bundle your archive.'
+            sys.exit(1)
+        Popen([os.path.join(os.path.dirname(__file__), 'solocode-run.sh')] + sys.argv[3:], cwd=os.curdir).communicate()
+    elif sys.argv[2] == 'simple':
+        Popen([os.path.join(os.path.dirname(__file__), 'solocode-simple.sh')] + sys.argv[3:], cwd=os.curdir).communicate()
+    else:
+        print('Usage: solo script (pack|push|run)')
+        sys.exit(1)
 else:
     print 'no argument found.'
 
