@@ -95,6 +95,32 @@ These install `pip`, the Python package manager, `runit`, a startup service mana
 
 Download logs from Solo into your current folder.
 
+# solocode
+
+```
+pip install --user -UI git+https://github.com/tcr3dr/solocode
+```
+
+### script
+
+Runs a script on Solo.
+
+Create a folder containing your Python code and all dependencies listed in a "requirements.txt" file. `cd` into the directory. With an Internet connection, run:
+
+```
+solo script pack
+```
+
+This will create a file "solo-script.tar.gz" which will be deployed to Solo. Next, connect to Solo's wifi and run:
+
+```
+solo script run main.py
+```
+
+Where "main.py" is the name of the file you want to use.
+
+Look at the "script-example/" directory in this repo for an example.
+
 
 ### video
 
