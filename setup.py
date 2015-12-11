@@ -1,9 +1,9 @@
 from setuptools import setup, Extension
 import platform
 
-version = '1.0.0'
+version = '1.1.0'
 
-setup(name='soloutils',
+setup(name='solo-cli',
       zip_safe=True,
       version=version,
       description="Command line utility for Solo development.",

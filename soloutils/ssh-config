@@ -1,0 +1,9 @@
+Host solo 10.1.1.10
+    Hostname 10.1.1.10
+    Port 22
+    User root
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+    ControlPath ~/.ssh/solocode-master
+    ControlMaster auto
+    ControlPersist 15
