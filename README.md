@@ -1,9 +1,17 @@
 # Solo CLI
 
-*Solo CLI* is a command-line tool that you install on your **computer** to control, update, or connect with Solo for development.
+*Solo CLI* is a command-line tool that you install on your computer to control, update, or connect with Solo for development.
+
+If you're reinstalling, first run:
 
 ```
-sudo pip uninstall soloutils
+sudo pip uninstall soloutils || true
+sudo pip uninstall solo-cli
+```
+
+To install solo-cli, run:
+
+```
 sudo pip install git+https://github.com/3drobotics/solo-cli
 ```
 
