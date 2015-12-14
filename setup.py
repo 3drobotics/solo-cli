@@ -26,6 +26,9 @@ setup(name='solo-cli',
                    'Operating System :: OS Independent',
                    'Programming Language :: Python :: 2.7',
                    'Topic :: Scientific/Engineering'],
+      package_data={
+        'soloutils': ['*.sh', 'ssh-config'],
+      },
       entry_points={
           'console_scripts': [
               'solo = soloutils.__main__'
