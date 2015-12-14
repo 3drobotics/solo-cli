@@ -11,7 +11,7 @@ sudo pip uninstall soloutils || true
 To install solo-cli, run:
 
 ```
-sudo pip uninstall solo-cli || true
+sudo pip uninstall solo-cli -y || true
 sudo pip install https://github.com/3drobotics/solo-cli/archive/master.zip --no-cache-dir
 ```
 
