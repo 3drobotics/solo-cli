@@ -1,7 +1,7 @@
 from setuptools import setup, Extension
 import platform
 
-version = '1.1.0'
+version = '1.1.1'
 
 setup(name='solo-cli',
       zip_safe=True,
