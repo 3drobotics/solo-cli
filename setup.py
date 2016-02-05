@@ -4,7 +4,6 @@ import platform
 version = '1.1.1'
 
 setup(name='solo-cli',
-      zip_safe=True,
       version=version,
       description="Command line utility for Solo development.",
       long_description="Command line utility for Solo development.",
