@@ -5,3 +5,4 @@ requests>=2.5.0
 pyopenssl
 ndg-httpsclient
 pyasn1
+virtualenv
