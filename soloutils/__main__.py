@@ -14,7 +14,8 @@ Usage:
   solo install-smart
   solo install-runit
   solo video (acquire|restore)
-  solo script [<arg>...]
+  solo script run [--force] <scriptname> [--] [<scriptarg>...]
+  solo script (pack|push)
 
 Options:
   -h --help        Show this screen.
@@ -67,10 +68,9 @@ elif args['script']:
     elif sys.argv[2] == 'push':
         soloutils.script.push_main(args)
     elif sys.argv[2] == 'run':
-        if len(sys.argv) < 4:
-            print 'Usage: solo script run <file.py>'
+        if not args['<scriptname>']:
+            print 'Usage: solo script run <scriptname> [<scriptarg>...]'
             sys.exit(1)
-        
         soloutils.script.run_main(args)
     else:
         print('Usage: solo script (pack|push|run)')

@@ -49,7 +49,7 @@ def push_main(args):
 
     # TODO check args['<arg>'] for --force
 
-    push(solo, scp, '--force' in args['<arg>'])
+    push(solo, scp, args['--force'])
 
     scp.close()
     solo.close()
@@ -69,7 +69,7 @@ def run_main(args):
         print 'failed installing pip.'
         sys.exit(1)
 
-    push(solo, scp, '--force' in args['<arg>'])
+    push(solo, scp, args['--force'])
 
     print 'running script...'
     print ''
@@ -77,7 +77,7 @@ def run_main(args):
 set -e
 cd /log/solo-script
 source ./env/bin/activate
-exec python /log/solo-script/''' + args['<arg>'][1]  + '''
+exec python /log/solo-script/''' + args['<scriptname>'] + ' ' + ' '.join(args['<scriptarg>'])  + '''
 ''')
 
     scp.close()
