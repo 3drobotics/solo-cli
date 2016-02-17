@@ -55,15 +55,9 @@ elif args['video']:
     soloutils.video.main(args)
 elif args['script']:
     if sys.argv[2] == 'pack':
-        if sys.platform.startswith("win"):
-            print 'ERROR: "solo script pack" does not yet run on Windows.'
-            print 'please follow along with its progress on github.'
-            sys.exit(1)
-
         print 'checking Internet connectivity...'
         soloutils.await_net()
-
-        Popen([os.path.join(os.path.dirname(__file__), 'solocode-pack.sh')] + sys.argv[3:], cwd=os.curdir).communicate()
+        soloutils.pack.main(args)
     elif sys.argv[2] == 'push':
         soloutils.script.push_main(args)
     elif sys.argv[2] == 'run':

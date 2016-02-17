@@ -10,6 +10,7 @@ import install_runit
 import resize
 import script
 import video
+import pack
 
 import sys
 import paramiko
