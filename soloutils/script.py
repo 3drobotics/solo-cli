@@ -29,7 +29,7 @@ tar -xvf /tmp/solo-script.tar.gz
 virtualenv --clear env || virtualenv env
 cp -rf /usr/lib/python2.7/site-packages/greenlet* env/lib/python2.7/site-packages/ || true
 source ./env/bin/activate
-pip install --no-index -U ./wheelhouse/* 
+pip install --no-index -U ./wheelhouse/*.whl
 ''')
 
 def push_main(args):

@@ -26,7 +26,7 @@ Options:
 import threading, time
 
 from docopt import docopt
-args = docopt(__doc__, version='solo-cli 1.1.0')
+args = docopt(__doc__, version='solo-cli 1.1.2')
 
 import base64, time, sys
 import soloutils
