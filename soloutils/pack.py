@@ -21,7 +21,7 @@ def spew_string_to_filepath(string, filepath):
 def spew_string_to_tmpscript(string):
     '''Write a string out to a file which can then be executed'''
     if is_win():
-        mysuffix = "bat"
+        mysuffix = ".bat"
     else:
         mysuffix = ""
 
