@@ -34,12 +34,7 @@ def spew_string_to_tmpscript(string):
     return tmp.name
 
 def write_distutils_pth(outfilepath):
-    content = '''
-import sys;
-import distutils.core;
-s = distutils.core.setup;
-distutils.core.setup = (lambda s: (lambda **kwargs: (kwargs.__setitem__("ext_modules", []), s(**kwargs))))(s)
-'''
+    content = '''import sys; import distutils.core; s = distutils.core.setup; distutils.core.setup = (lambda s: (lambda **kwargs: (kwargs.__setitem__("ext_modules", []), s(**kwargs))))(s)'''
     spew_string_to_filepath(content, outfilepath)
 
 def run_in_env(basedir, command):
@@ -81,6 +76,12 @@ def excludefn(contentdir, filename):
 
     return False
 
+def find_site_packages_directory(startdir):
+    for dirpath, dirnames, filenames in os.walk(startdir):
+        if "site-packages" in dirnames:
+            return os.path.join(dirpath, "site-packages")
+    raise Exception("site-packages not found in (%s)" % (startdir,))
+
 def main(args):
     print 'Creating script archive...'
 
@@ -108,8 +109,10 @@ def main(args):
     # create new virtual environment:
     virtualenv.create_environment(envdir)
 
+    site_packages_directory = find_site_packages_directory(envdir)
     # write out a configuration script:
-    write_distutils_pth(os.path.join(envdir, 'lib','python2.7','site-packages','distutils.pth'))
+    print("site packages directory: %s" % (site_packages_directory,))
+    write_distutils_pth(os.path.join(site_packages_directory, 'distutils.pth'))
 
     run_in_env(contentdir, "pip install wheel")
     run_in_env(contentdir, "pip wheel -r requirements.txt -w wheelhouse")
