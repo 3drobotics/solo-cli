@@ -44,21 +44,25 @@ def run_in_env(basedir, command):
         source = ""
         activate = "env\\bin\\activate.bat"
         shebang = ""
+        windows_drive_change = "/d"
     else:
         source = "source"
         activate = "env/bin/activate"
         shebang = "#!/bin/bash"
+        windows_drive_change = ""
 
     content = '''{shebang}
 
-cd "{basedir}"
+cd {windows_drive_change} "{basedir}"
+
 {source} {activate}
 {command}
 '''.format(command=command,
            basedir=basedir,
            activate=activate,
            source=source,
-           shebang=shebang)
+           shebang=shebang,
+           windows_drive_change=windows_drive_change)
 
     path = spew_string_to_tmpscript(content)
     print("script is at %s" % (path,))
