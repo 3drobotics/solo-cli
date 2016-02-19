@@ -4,7 +4,7 @@ python:
 
 install:
 - 'python setup.py install'
-- 'pip install nose mock'
+- 'pip install nose mock virtualenv'
 
 script:
 - nosetests
