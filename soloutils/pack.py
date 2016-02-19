@@ -42,7 +42,7 @@ def run_in_env(basedir, command):
     # write out a batch script
     if is_win():
         source = ""
-        activate = "env\\bin\\activate.bat"
+        activate = "env\\Scripts\\activate.bat"
         shebang = ""
         windows_drive_change = "/d"
     else:
