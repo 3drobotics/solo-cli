@@ -61,6 +61,7 @@ def connect_solo(await=True, silent=False):
 
 def command_stream(client, cmd, stdout=sys.stdout, stderr=sys.stderr):
     chan = client.get_transport().open_session()
+    chan.get_pty()
     chan.exec_command(cmd)
     while True:
         time.sleep(0.1)
