@@ -41,7 +41,7 @@ def run_in_env(basedir, command):
     '''run command in the created environment'''
     # write out a batch script
     if is_win():
-        source = ""
+        source = "call"
         activate = "env\\Scripts\\activate.bat"
         shebang = ""
         windows_drive_change = "/d"
