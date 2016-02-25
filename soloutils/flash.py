@@ -26,6 +26,8 @@ def errprinter(*args, **kwargs):
 class FirmwareRelease(object):
     def __init__(self, json):
         self.version = json['major'] + '.' + json['minor'] + '.' + json['patch']
+        if 'suffix' in json and json['suffix']:
+            self.version += '-' + json['suffix']
         self.url = json['file']
         self.md5 = json['md5']
         self.channel = json['channel']
