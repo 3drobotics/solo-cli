@@ -38,7 +38,7 @@ def openurl(url):
     request.add_header('Authorization', 'Token ' + TOKEN)
     return urllib2.urlopen(request)
 
-def releases(product):
+def releases(product, channels):
     results = []
     url = urlparse.urljoin(SERVERADDR, 'releases/')
     while True:
@@ -48,7 +48,7 @@ def releases(product):
             url = parsed['next']
         else:
             break
-    return sorted(filter(lambda x: x.product in product and ('SOLO_UNFILTERED_UPDATES' in os.environ or x.channel == 1), map(FirmwareRelease, results)), key=lambda x: LooseVersion(x.version))
+    return sorted(filter(lambda x: x.product in product and (x.channel in channels if ('SOLO_UNFILTERED_UPDATES' in os.environ) else x.channel == 1), map(FirmwareRelease, results)), key=lambda x: LooseVersion(x.version))
 
 def fetch(release):
     import requests
@@ -94,8 +94,8 @@ def list():
     errprinter('checking Internet connectivity...')
     soloutils.await_net()
 
-    controller = releases([1, 10])
-    drone = releases([2, 9])
+    controller = releases([1, 10], [1, 8])
+    drone = releases([2, 9], [1, 8])
 
     for update in controller:
         print('controller', update.version)
@@ -250,7 +250,7 @@ def download_firmware(target, version):
     else:
         product = [2, 9]
 
-    updates = releases(product)
+    updates = releases(product, [1, 7])
 
     if version:
         updates = filter(lambda x: version in re.sub('.tar.gz', '', x.url.split('/')[-1]), updates)
@@ -269,7 +269,7 @@ def main(args):
         if args['<filename>']:
             firmware_file = args['<filename>']
             flash_px4(firmware_file)
-    	return    
+    	return
 
     if args['both']:
         group = 'Solo and the Controller'
