@@ -37,6 +37,7 @@ Usage:
   solo install-smart
   solo install-runit
   solo video (acquire|restore)
+  solo script [<arg>...]
 
 Options:
   -h --help        Show this screen.
