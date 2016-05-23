@@ -58,6 +58,7 @@ def fetch(release):
     f = open('/tmp/' + file_name, 'wb')
     file_size = int(u.headers['Content-Length'])
     errprinter("downloading: %s Bytes: %s" % (file_name, file_size))
+    errprinter("        url: %s" % (release.url,))
 
     sig = hashlib.md5()
 
@@ -94,8 +95,8 @@ def list():
     errprinter('checking Internet connectivity...')
     soloutils.await_net()
 
-    controller = releases([1, 10], [1, 8])
-    drone = releases([2, 9], [1, 8])
+    controller = releases([1, 10], [1, 7])
+    drone = releases([2, 9], [1, 7])
 
     for update in controller:
         print('controller', update.version)
@@ -206,7 +207,7 @@ def flash(target, firmware_file, firmware_md5, args):
             code = soloutils.command_stream(client, 'touch /log/updates/UPDATE && touch /log/updates/RESETSETTINGS && shutdown -r now')
         else:
             code = soloutils.command_stream(client, 'touch /log/updates/UPDATE && shutdown -r now')
-        
+
     if target == 'controller':
         errprinter('the Controller will update once it reboots!')
     else:
@@ -279,11 +280,15 @@ def main(args):
         group = 'the Controller'
 
     version = None
+    local_file = None
     if args['<version>']:
-        version = re.sub(r'^v', '', args['<version>'])
-        if not re.match(r'^\d+', version):
-            errprinter('error: verion number specified looks invalid.')
-            sys.exit(1)
+        if re.match(r'^[./]', args['<version>']):
+            local_file = args['<version>']
+        else:
+            version = re.sub(r'^v', '', args['<version>'])
+            if not re.match(r'^\d+', version):
+                errprinter('error: verion number specified looks invalid.')
+                sys.exit(1)
 
     # Specific exceptions to the update flow.
     if args['current'] and not args['--clean']:
@@ -315,14 +320,26 @@ def main(args):
         # solo flash XXX factory --clean
         return factory_reset(args)
 
-    errprinter('')
-    errprinter('checking Internet connectivity...')
-    soloutils.await_net()
+    if local_file:
+        if args['both']:
+            errprinter('you must specify drone or controller separately, not both, with local files.')
+            sys.exit(1)
 
-    if args['drone'] or args['both']:
-        drone_file, drone_md5 = download_firmware('drone', version)
-    if args['controller'] or args['both']:
-        controller_file, controller_md5 = download_firmware('controller', version)
+        controller_file = drone_file = os.path.abspath(local_file)
+        controller_md5 = drone_md5 = os.path.abspath(local_file) + '.md5'
+    else:
+        errprinter('')
+        errprinter('checking Internet connectivity...')
+        soloutils.await_net()
+
+        if args['drone'] or args['both']:
+            # drone_file, drone_md5 = download_firmware('drone', version)
+            drone_file = '/Users/timryan/Desktop/test/solo_0.0.0.tar.gz'
+            drone_md5 = '/Users/timryan/Desktop/test/solo_0.0.0.tar.gz.md5'
+        if args['controller'] or args['both']:
+            # controller_file, controller_md5 = download_firmware('controller', version)
+            controller_file = '/Users/timryan/Desktop/test/controller_0.0.0.tar.gz'
+            controller_md5 = '/Users/timryan/Desktop/test/controller_0.0.0.tar.gz.md5'
 
     errprinter('')
     errprinter('please power on ' + group + ' and connect your computer')
