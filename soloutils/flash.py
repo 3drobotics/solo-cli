@@ -333,13 +333,9 @@ def main(args):
         soloutils.await_net()
 
         if args['drone'] or args['both']:
-            # drone_file, drone_md5 = download_firmware('drone', version)
-            drone_file = '/Users/timryan/Desktop/test/solo_0.0.0.tar.gz'
-            drone_md5 = '/Users/timryan/Desktop/test/solo_0.0.0.tar.gz.md5'
+            drone_file, drone_md5 = download_firmware('drone', version)
         if args['controller'] or args['both']:
-            # controller_file, controller_md5 = download_firmware('controller', version)
-            controller_file = '/Users/timryan/Desktop/test/controller_0.0.0.tar.gz'
-            controller_md5 = '/Users/timryan/Desktop/test/controller_0.0.0.tar.gz.md5'
+            controller_file, controller_md5 = download_firmware('controller', version)
 
     errprinter('')
     errprinter('please power on ' + group + ' and connect your computer')
