@@ -29,7 +29,15 @@ def _connect(ip, await=True, silent=False):
     socket.setdefaulttimeout(5)
     message = silent
     start = time.time()
+    tryCount = 0
     while True:
+
+        if (tryCount >= 5):
+            print 'error: unable to connect after {} attempts, giving up.'.format(tryCount)
+            sys.exit(1)
+
+        tryCount = tryCount + 1
+
         try:
             client.connect(ip, username='root', password='TjSDBkAu', timeout=5)
         except paramiko.BadHostKeyException:
@@ -39,15 +47,18 @@ def _connect(ip, await=True, silent=False):
             print ''
             print 'and try again'
             sys.exit(1)
+        except paramiko.AuthenticationException as e:
+            print 'ssh authentication error'
+            raise e
         except Exception as e:
             if not await:
                 raise e
-            if not message and time.time() - start > 5:
+            if not message and time.time() - start > 2:
                 message = True
                 print '(note: ensure you are connected to Solo\'s wifi network.)'
             client.close()
+            time.sleep(1)
             continue
-        time.sleep(1)
         break
     socket.setdefaulttimeout(None)
 
