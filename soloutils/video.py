@@ -2,7 +2,7 @@ import paramiko, base64, time, sys, soloutils
 from distutils.version import LooseVersion
 
 ACQUIRE = """
-TOGGLE="if [ -e /home/root/ACQUIRE_VIDEO_FEED ]; then while true; do sleep 100000; done; fi"
+TOGGLE="if [ -e /home/root/ACQUIRE_VIDEO_FEED ]; then modprobe mxc_v4l2_capture; while true; do sleep 100000; done; fi"
 
 echo 'acquiring video feed...'
 grep -q "while true; do sleep 100000; done" /usr/bin/video_send.sh || {
