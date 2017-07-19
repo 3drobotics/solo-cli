@@ -84,8 +84,8 @@ def fetch(release):
     f2.close()
 
     if release.md5 != sig.hexdigest():
-        errprinter('expected md5 of {}, received file with md5 of {}'.format(md5, sig.hexdigest()))
-        errprinter('please check the file {}'.format(url))
+        errprinter('expected md5 of {}, received file with md5 of {}'.format(release.md5, sig.hexdigest()))
+        errprinter('please check the file {}'.format(release.url))
         errprinter('and try again.')
         sys.exit(1)
 
