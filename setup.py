@@ -30,7 +30,7 @@ setup(name='solo-cli',
       },
       entry_points={
           'console_scripts': [
-              'solo = soloutils.__main__'
+              'solo = soloutils:__main__'
           ]
       },
       license='apache',
